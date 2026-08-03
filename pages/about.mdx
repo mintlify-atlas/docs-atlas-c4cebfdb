@@ -1,0 +1,176 @@
+---
+title: "About Me Page: RPG Character Sheet Layout"
+sidebarTitle: "About"
+description: "The About page presents a developer profile as an RPG character sheet with live mood/music trackers, a terminal stats block, and dynamic cycling state."
+---
+
+The About page (`/about`) frames a developer bio as a retro RPG character sheet. A pixelated avatar sits beside a terminal-green stats block, beneath a hot-pink Pacifico title styled with alternating caps (`~*~ aBoUt mE ~*~`). Two pieces of live state — current mood and currently-playing track — cycle on a 3-second interval using `setInterval`. The page closes with an `UnderConstructionSign` component for maximum Y2K authenticity.
+
+## Route
+
+| Path     | Component function |
+|----------|--------------------|
+| `/about` | `le()` in `assets/main.js` |
+
+## Dynamic State
+
+The two cycling arrays drive the live displays via `React.useState` and `React.useEffect`:
+
+```js
+// Mood cycle — updates every 3 seconds
+const T = ["Stoked 🤙", "Caffeinated ☕", "Debugging 🐛", "Coding 💻"];
+
+// Music cycle — updates every 3 seconds
+const P = [
+  "Darude - Sandstorm",
+  "Linkin Park - In The End",
+  "Smash Mouth - All Star",
+  "Eiffel 65 - Blue"
+];
+```
+
+```js
+// Timer setup inside le()
+useEffect(() => {
+  const i = setInterval(() => {
+    r(n => (n + 1) % T.length);  // mood index
+    a(n => (n + 1) % P.length);  // music index
+  }, 3000);
+  return () => clearInterval(i);
+}, []);
+```
+
+<Tip>
+  To add more moods or songs, append strings to the `T` or `P` arrays. The modulo arithmetic automatically handles any array length.
+</Tip>
+
+## Page Structure
+
+The page is centred at `max-w-3xl mx-auto`. A `bevel-container bg-silver` wraps a nested `bevel-container-inset bg-cream retro-dashed`, inside which a flex row holds the left character panel and right stats panel.
+
+<CardGroup cols={2}>
+  <Card title="Left Column (w-1/3)" icon="user">
+    Pixelated avatar with "Level 99 Webmaster" overlay bar, plus an RPG stat table (HP, MP, EXP).
+  </Card>
+  <Card title="Right Column (w-2/3)" icon="terminal">
+    Terminal VITAL STATS block, live mood + music widgets, and the "My Story" prose section.
+  </Card>
+</CardGroup>
+
+## Avatar & RPG Stats
+
+The avatar is a 192×192 `bg-black` container with a `border-4 border-turquoise`. The photo uses `imageRendering: "pixelated"` and CSS filters (`contrast-150 saturate-200`) to achieve a pixel-art look:
+
+```jsx
+<img
+  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=10"
+  alt="Me"
+  className="w-full h-full object-cover filter contrast-150 saturate-200"
+  style={{ imageRendering: "pixelated" }}
+/>
+<div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white font-pixel text-center py-1">
+  Level 99 Webmaster
+</div>
+```
+
+The RPG stat table below the avatar uses `font-pixel` with coloured values:
+
+| Stat | Value | Colour class |
+|------|-------|--------------|
+| HP   | 999/999 | `text-green-600` |
+| MP   | 404/404 | `text-blue-600`  |
+| EXP  | MAX     | `text-yellow-600` |
+
+## Terminal VITAL STATS Block
+
+The stats block is styled as a dark terminal (`bg-black text-green-400 font-pixel p-4 border-2 border-gray-600`):
+
+```jsx
+<div className="bg-black text-green-400 font-pixel p-4 rounded-sm border-2 border-gray-600">
+  <h3 className="text-xl text-white mb-2 border-b border-gray-600 pb-1">/// VITAL STATS ///</h3>
+  <ul className="space-y-2">
+    <li><span className="text-gray-400">Name:</span> The Coder</li>
+    <li><span className="text-gray-400">Location:</span> Cyberspace</li>
+    <li><span className="text-gray-400">Zodiac:</span> HTML5</li>
+    <li><span className="text-gray-400">Fav Color:</span> #00CED1</li>
+  </ul>
+</div>
+```
+
+## Live Mood & Music Widgets
+
+Both widgets sit in `font-comic text-lg` spacing. The mood badge uses a `bg-yellow-200` pill; the music player uses a silver `bg-silver` strip with an animated pulsing 🎵 emoji and a scrolling `animate-marquee` track name:
+
+```jsx
+// Mood widget
+<div className="flex items-center gap-2">
+  <span className="font-bold text-turquoise">Current Mood:</span>
+  <span className="bg-yellow-200 px-2 py-1 border border-black rounded-full text-sm">
+    {T[s]}  {/* cycles: "Stoked 🤙", "Caffeinated ☕", etc. */}
+  </span>
+</div>
+
+// Music widget
+<div className="flex items-center gap-2">
+  <span className="font-bold text-hotpink">Currently Listening To:</span>
+  <div className="flex items-center gap-2 bg-silver px-2 py-1 border border-gray-500 text-sm overflow-hidden">
+    <span className="animate-pulse">🎵</span>
+    <div className="w-48 overflow-hidden whitespace-nowrap">
+      <span className="animate-marquee inline-block">{P[t]}</span>
+    </div>
+  </div>
+</div>
+```
+
+## Story Text
+
+Two paragraphs in `font-comic` sit under an `h3` heading in `text-turquoise`:
+
+```jsx
+<h3 className="text-2xl text-turquoise font-bold mb-2">My Story</h3>
+<p className="mb-2">
+  I started coding back when tables were for layout and spacer.gif was my best friend.
+  Now I build modern web apps, but I still miss the days of custom cursors and
+  autoplaying MIDI files.
+</p>
+<p>My goal is to make the web fun again! Less corporate minimalism, more personality!</p>
+```
+
+## UnderConstructionSign
+
+`<UnderConstructionSign />` renders at the bottom of the page (`mt-8`). It comes from `components/UnderConstructionSign.js` and displays the classic animated "Under Construction" graphic.
+
+## Customisation Guide
+
+<CodeGroup>
+```js Mood & Music Arrays
+// assets/main.js — top-level constants before le()
+const T = ["Stoked 🤙", "Caffeinated ☕", "Debugging 🐛", "Coding 💻"];
+const P = [
+  "Darude - Sandstorm",
+  "Linkin Park - In The End",
+  "Smash Mouth - All Star",
+  "Eiffel 65 - Blue"
+];
+// Add/remove entries freely — the modulo index handles any length.
+```
+
+```js Vital Stats
+// In le() — change the <li> text nodes inside "/// VITAL STATS ///"
+<li><span className="text-gray-400">Name:</span> The Coder</li>
+<li><span className="text-gray-400">Location:</span> Cyberspace</li>
+<li><span className="text-gray-400">Zodiac:</span> HTML5</li>
+<li><span className="text-gray-400">Fav Color:</span> #00CED1</li>
+```
+
+```js RPG Stats
+// In le() — adjust the values in the HP/MP/EXP rows
+<span className="text-green-600">999/999</span>  // HP
+<span className="text-blue-600">404/404</span>   // MP
+<span className="text-yellow-600">MAX</span>     // EXP
+```
+</CodeGroup>
+
+<Note>
+  The page title `~*~ aBoUt mE ~*~` is rendered with the Pacifico font (`font-comic` maps to Comic Neue in most places, but the `h2` here uses the Pacifico class via `text-hotpink`). To change the title text, update the string inside the `<h2>` at the top of `le()`.
+</Note>

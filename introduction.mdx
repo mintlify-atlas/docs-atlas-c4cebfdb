@@ -1,0 +1,82 @@
+---
+title: "Webmaster: Y2K React Portfolio with Retro Components"
+sidebarTitle: "Introduction"
+description: "Webmaster is a retro-styled React SPA that recreates Y2K/Web 1.0 aesthetics with modern tooling — React 18, Vite, React Router, and Tailwind CSS custom utilities."
+---
+
+Webmaster is a single-page React portfolio that transports visitors back to the internet of 1999–2002 while running on thoroughly modern infrastructure. Every design choice — from the Windows 98-style beveled panels to the blinking visitor counter that starts at 001336 — is a deliberate recreation of the personal homepage era, powered by React 18, Framer Motion, and Tailwind CSS.
+
+## What Makes Webmaster Distinctive
+
+Most retro-aesthetic projects bolt a vintage coat of paint onto generic layouts. Webmaster goes deeper: it ships a suite of eight purpose-built retro components, each encapsulating a specific Y2K UI pattern. `SparkleCursor` spawns animated `✦` glyphs in hot-pink, turquoise, lemon, and white as the pointer moves, honouring the `prefers-reduced-motion` media query. `MarqueeStrip` renders a continuously scrolling ticker in pixel font on a black-with-hot-pink-border band. `VisitorCounter` simulates a seven-segment LED display that increments from `001336` after a 1.5-second delay. These aren't placeholder widgets — they are the product.
+
+## Tech Stack
+
+Webmaster is built with the following technologies:
+
+| Layer | Technology |
+|---|---|
+| UI library | React 18 |
+| Build tool | Vite |
+| Routing | React Router v6 |
+| Animation | Framer Motion |
+| Styling | Tailwind CSS + custom CSS |
+| Fonts | VT323, Comic Neue, Pacifico (Google Fonts) |
+
+Vite compiles the entire app — all pages, routing logic, and component code — into `assets/main.js` and `assets/main.css`. The result is a fully static deployment: a single `index.html` that loads two pre-built asset files and mounts React into a `<div id="root">`.
+
+## Architecture Overview
+
+The app is structured as a client-side SPA with nine routes, eight reusable components, and a pre-compiled static output:
+
+- **9 routed pages** — `/`, `/about`, `/skills`, `/projects`, `/work`, `/casestudies`, `/blog`, `/contact`, `/testimonials` — all defined via React Router v6 `<Routes>` and `<Route>` elements inside the main `App` component.
+- **8 custom components** — `RetroNav`, `MarqueeStrip`, `SparkleCursor`, `PageTransition`, `VisitorCounter`, `WebringBadges`, `UnderConstructionSign`, and `Button88x31` — each exported as an ES module from the `components/` directory.
+- **Pre-built static output** — the `assets/` directory contains the bundled production build; no server or build step is required to serve the site.
+
+<Note>
+  Webmaster ships as a pre-built static site. The `index.html` at the repository root directly references `./assets/main.js` and `./assets/main.css` — there is no `package.json` at the root, because the build step has already run. To modify and rebuild the source, you would need the original Vite project sources.
+</Note>
+
+## Visual Design Philosophy
+
+The visual identity is anchored in three eras of internet design:
+
+**Windows 98 bevel UI.** Panels and interactive elements use `.bevel-container` and `.bevel-container-inset` — custom CSS classes that replicate the raised and recessed 3D border effect of Win98 dialog boxes. Buttons use `.bevel-button`, and the `Button88x31` component renders the classic 88×31 pixel web badge format that was ubiquitous on late-1990s homepages.
+
+**Y2K typography.** Three Google Fonts define the typographic hierarchy: `VT323` (accessible via `.font-pixel`) mimics dot-matrix terminal output; `Comic Neue` (`.font-comic`) evokes Comic Sans without the rendering baggage; and `Pacifico` is applied globally to all heading elements (`h1`–`h6`) for a hand-lettered feel.
+
+**Hot-pink and turquoise palette.** Six CSS custom properties form the color system:
+
+```css
+:root {
+  --color-teal:      #008080;  /* body background */
+  --color-turquoise: #00CED1;  /* grid overlay + accents */
+  --color-cream:     #FFFFF0;  /* content panel backgrounds */
+  --color-hotpink:   #FF69B4;  /* borders, highlights, sparkles */
+  --color-lemon:     #FFFACD;  /* marquee text, soft highlights */
+  --color-silver:    #C0C0C0;  /* nav elements, UI chrome */
+}
+```
+
+The `body` background is teal (`#008080`) overlaid with a faint turquoise grid pattern rendered as an SVG `data:` URL — no external image requests needed.
+
+**Motion and decoration.** Five custom keyframe animations — `marquee`, `blink`, `bob`, `rainbow-bg`, and `border-dance` — are defined in `assets/main.css` alongside utility classes like `.rainbow-text`, `.marching-ants`, `.retro-dashed`, `.retro-dotted`, and `.scanlines`. Framer Motion's `AnimatePresence` wraps all route changes through the `PageTransition` component, giving every page navigation a smooth enter/exit transition while keeping the retro aesthetic intact.
+
+## Explore Further
+
+<CardGroup cols={2}>
+  <Card
+    title="Quickstart"
+    icon="rocket"
+    href="/quickstart"
+  >
+    Clone the repo, install dependencies, and have the teal homepage with its sparkle cursor running in your browser in under five minutes.
+  </Card>
+  <Card
+    title="Project Structure"
+    icon="folder-tree"
+    href="/project-structure"
+  >
+    Understand how `assets/main.js`, the `components/` directory, and the `pages/` static HTML files fit together.
+  </Card>
+</CardGroup>

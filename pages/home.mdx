@@ -1,0 +1,139 @@
+---
+title: "Webmaster Homepage: Layout, Marquee, and Sidebar"
+sidebarTitle: "Home"
+description: "The homepage combines a 4-column responsive layout with two MarqueeStrips, the VisitorCounter, WebringBadges sidebar, and a Comic Neue hero introduction."
+---
+
+The homepage (`/`) is the first impression visitors get of the Webmaster portfolio. It opens and closes with scrolling `MarqueeStrip` banners, sandwiching a 4-column responsive grid that splits into a narrow left sidebar and a wide main content panel. The retro Y2K aesthetic is carried through bevel containers, Comic Neue body text, turquoise headings, and a hot-pink guestbook call-to-action.
+
+## Route
+
+| Path | Component function |
+|------|--------------------|
+| `/`  | `re()` in `assets/main.js` |
+
+## Layout Overview
+
+The page uses a single-column layout on mobile that expands to a **4-column CSS grid** (`md:grid-cols-4`) on medium screens and above.
+
+<CardGroup cols={2}>
+  <Card title="Left Sidebar" icon="sidebar">
+    `md:col-span-1` — holds the Pentium III rig photo, `WebringBadges` component, and a blinking HOT! badge linking to the guestbook.
+  </Card>
+  <Card title="Main Content" icon="layout">
+    `md:col-span-3` — a `bevel-container-inset` with a retro-dotted background housing the hero heading, three paragraphs of Comic Neue text, and a retro computer photo.
+  </Card>
+</CardGroup>
+
+## MarqueeStrips
+
+Two `MarqueeStrip` components bookend the page content. The top strip uses default styling (silver/black), while the bottom strip applies custom colour overrides.
+
+```jsx
+// Top strip — default styling
+<MarqueeStrip text="+++ WELCOME TO MY HOMEPAGE!!! +++ BEST VIEWED IN 800x600 +++ NO FRAMES PLEASE +++" />
+
+// Bottom strip — turquoise background, black text, black border
+<MarqueeStrip
+  text="+++ UPDATED: 10/24/2001 +++ ADDED NEW MIDI FILES +++ CHECK OUT MY LINKS PAGE +++"
+  className="bg-turquoise text-black border-black"
+/>
+```
+
+<Tip>
+  To update the marquee messages, change the `text` prop strings passed to each `MarqueeStrip` call inside `re()`. The bottom strip also accepts a `className` prop for background and border colours.
+</Tip>
+
+## Left Sidebar Elements
+
+### Rig Photo
+An `<img>` sourced from Unsplash showing a Pentium III workstation setup (`photo-1531297172867`). It sits inside a silver `bevel-container` with a 2px black border and a `font-pixel` caption reading **"My rig (Pentium III)"**.
+
+### WebringBadges
+The `<WebringBadges />` component is dropped in directly below the photo. It renders a series of 88×31 pixel webring membership badges. See the `WebringBadges.js` component for badge data.
+
+### HOT! Badge + Guestbook Promo
+A blinking red pixel badge and a Comic Neue prompt direct visitors to the guestbook (`/contact`):
+
+```jsx
+<span className="inline-block bg-red-600 text-white font-pixel text-xs px-1 animate-blink">
+  HOT!
+</span>
+<p className="font-comic text-sm mt-1">Check out my new guestbook!</p>
+```
+
+## Main Content Panel
+
+The main panel sits inside `bevel-container-inset p-6 bg-white retro-dotted h-full`.
+
+### Hero Heading
+```jsx
+<h2 className="text-4xl text-turquoise mb-4 drop-shadow-[1px_1px_0_#000]">
+  Hi, I'm a Webmaster!
+</h2>
+```
+
+### Intro Paragraphs
+Three paragraphs in `font-comic space-y-4 text-lg leading-relaxed`. The third paragraph uses `text-hotpink font-bold` to highlight the guestbook CTA:
+
+```jsx
+<p>Welcome to my little corner of the World Wide Web! I built this site using pure HTML
+and CSS (and maybe a little bit of JavaScript magic).</p>
+
+<p>I'm a full-stack developer who loves building cool stuff on the internet. When I'm not
+coding, I'm probably updating my LiveJournal or downloading MP3s on Napster.</p>
+
+<p className="text-hotpink font-bold">
+  Make sure to sign my guestbook before you leave!!!
+</p>
+```
+
+### Retro Computer Photo
+A centred `<img>` from Unsplash (`photo-1550745165-9bc0b252726f`) styled with a turquoise border and hot-pink drop shadow:
+
+```jsx
+<img
+  src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=400&q=80"
+  alt="Retro computer"
+  className="rounded-lg border-4 border-turquoise shadow-[8px_8px_0_#FF69B4]"
+/>
+```
+
+### VisitorCounter
+The `<VisitorCounter />` component renders below the main prose content, inside the same `bevel-container-inset`. It displays a running visitor count in `font-pixel` style.
+
+## Customisation Guide
+
+<CodeGroup>
+```js Marquee Text
+// In re() — assets/main.js
+// Change top strip message:
+<MarqueeStrip text="+++ WELCOME TO MY HOMEPAGE!!! +++ BEST VIEWED IN 800x600 +++ NO FRAMES PLEASE +++" />
+
+// Change bottom strip message + colours:
+<MarqueeStrip
+  text="+++ UPDATED: 10/24/2001 +++ ADDED NEW MIDI FILES +++ CHECK OUT MY LINKS PAGE +++"
+  className="bg-turquoise text-black border-black"
+/>
+```
+
+```js Hero Text
+// In re() — assets/main.js — replace the three <p> children:
+<p>Welcome to my little corner of the World Wide Web! ...</p>
+<p>I'm a full-stack developer who loves building cool stuff ...</p>
+<p className="text-hotpink font-bold">Make sure to sign my guestbook before you leave!!!</p>
+```
+
+```js Sidebar Photo
+// Replace the Unsplash src with any 300px-wide image URL:
+<img
+  src="https://images.unsplash.com/photo-1531297172867-4f50f1636427?auto=format&fit=crop&w=300&q=80"
+  alt="My Setup"
+  className="w-full h-auto border-2 border-black"
+/>
+```
+</CodeGroup>
+
+<Note>
+  The bottom `MarqueeStrip` is wrapped in `<div className="mt-6">` to add spacing between it and the main grid. Removing that wrapper pulls the strip flush against the content.
+</Note>

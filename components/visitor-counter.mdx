@@ -1,0 +1,109 @@
+---
+title: "VisitorCounter: Retro LED Digit Display Component"
+sidebarTitle: "VisitorCounter"
+description: "VisitorCounter renders a 6-digit LED-style visitor counter that starts at 1337, with red glowing digits on a dark background — a classic Web 1.0 staple."
+---
+
+`VisitorCounter` recreates the iconic 7-segment LED counter that lived in the sidebar of every GeoCities page. It displays a 6-digit zero-padded number in red-on-black with a soft neon glow — as if each digit is lit from within by a tiny cathode-ray tube. On mount, it ticks from `001336` to `001337` after a 1.5-second delay, giving the visitor the satisfying sensation of being the one who pushed the number over.
+
+## Props
+
+`VisitorCounter` accepts no props. The starting count and the tick-up delay are baked into the component.
+
+<ParamField body="(none)" type="–">
+  Drop `<VisitorCounter />` anywhere in your layout — no configuration required.
+</ParamField>
+
+## Counter Logic
+
+The component initializes state at `1336`. A `useEffect` runs once on mount and schedules a `setTimeout` of **1500ms** that increments the count by one. The cleanup function clears that timer if the component unmounts before it fires.
+
+```jsx
+const [count, setCount] = useState(1336);
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setCount((prev) => prev + 1);
+  }, 1500);
+  return () => clearTimeout(timer);
+}, []);
+```
+
+After 1.5 seconds, `count` becomes `1337` — a deliberate easter egg for the technically inclined visitor.
+
+## Digit Rendering
+
+The count is formatted as a 6-character zero-padded string, then split into individual characters so each digit gets its own styled `div`:
+
+```jsx
+const digits = count.toString().padStart(6, '0').split('');
+// e.g. ['0', '0', '1', '3', '3', '7']
+```
+
+Each digit `div` carries the following classes and inline style:
+
+```jsx
+<div
+  className="bg-zinc-800 text-red-500 font-pixel text-3xl px-2 py-1 border border-zinc-600 shadow-inner"
+  style={{ textShadow: '0 0 5px rgba(255,0,0,0.5)' }}
+>
+  {digit}
+</div>
+```
+
+| Style detail | Value | Effect |
+|---|---|---|
+| `bg-zinc-800` | dark grey cell background | individual segment housing |
+| `text-red-500` | Tailwind red-500 | bright LED red digit |
+| `font-pixel` | custom pixel font | dot-matrix character rendering |
+| `text-3xl` | 1.875rem | large, easily readable digit |
+| `border border-zinc-600` | medium grey border | segment cell boundary |
+| `shadow-inner` | inset box shadow | recessed-screen depth effect |
+| `textShadow: '0 0 5px rgba(255,0,0,0.5)'` | 5px red glow | neon LED bloom |
+
+## Container Styling
+
+The outer wrapper centers the label and digit panel vertically:
+
+```jsx
+<div className="flex flex-col items-center my-6">
+  <div className="font-comic text-sm mb-1 font-bold">YOU ARE VISITOR:</div>
+  <div className="flex gap-1 bg-black p-2 bevel-container-inset">
+    {digits.map((digit, i) => (
+      <div key={i} className="bg-zinc-800 text-red-500 font-pixel text-3xl px-2 py-1 border border-zinc-600 shadow-inner"
+           style={{ textShadow: '0 0 5px rgba(255,0,0,0.5)' }}>
+        {digit}
+      </div>
+    ))}
+  </div>
+</div>
+```
+
+- **`font-comic text-sm font-bold`** — the "YOU ARE VISITOR:" label uses Comic Sans (via `font-comic`) in bold small caps
+- **`bg-black p-2 bevel-container-inset`** — the digit panel sits on a pure black background inside a custom `bevel-container-inset` class that adds an inset bevel border, replicating the look of a real LCD housing
+- **`flex gap-1`** — digits are laid out in a row with a 4px gap between cells
+
+<Note>
+  The `bevel-container-inset` utility is a custom Tailwind class defined in the project's global CSS. It applies an inset box-shadow to simulate the beveled plastic border of a physical LED display.
+</Note>
+
+## Usage
+
+Drop `<VisitorCounter />` anywhere in your layout. In the Webmaster project it lives in the homepage sidebar, but it will work in any container:
+
+```jsx
+import { VisitorCounter } from './components/VisitorCounter';
+
+export function Sidebar() {
+  return (
+    <aside className="w-48 flex flex-col items-center">
+      <VisitorCounter />
+      {/* other sidebar widgets */}
+    </aside>
+  );
+}
+```
+
+<Tip>
+  For extra authenticity, wrap `VisitorCounter` inside a `bevel-container` div and surround it with a couple of `Button88x31` components — the classic Web 1.0 sidebar stack.
+</Tip>

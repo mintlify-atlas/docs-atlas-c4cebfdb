@@ -1,0 +1,401 @@
+---
+title: "Webmaster CSS Utility Classes Reference"
+sidebarTitle: "CSS Classes"
+description: "Complete reference for Webmaster's custom CSS utility classes including bevel containers, retro borders, typography helpers, and the scanlines overlay effect."
+---
+
+Webmaster supplements Tailwind CSS with a set of hand-written utility classes in `assets/main.css`. These classes handle the distinctly retro effects that Tailwind's design-system utilities don't cover out of the box: Windows 98-style bevel borders, animated selection outlines, cycling rainbow text, a CRT scanline overlay, and custom font assignments. Each class below is documented with its full CSS definition and a JSX usage example.
+
+---
+
+## Bevel Border Classes
+
+The bevel classes simulate the 3D raised and sunken borders that Windows 98 applied to all dialog boxes, panels, and buttons. The illusion is achieved purely with asymmetric border colors — no `box-shadow` required.
+
+<Accordion title=".bevel-container — Raised Windows 98 Panel">
+
+**What it does:** Gives an element a silver background and a raised 3D appearance: bright white borders on the top and left edges catch simulated "light," while medium-gray borders on the bottom and right edges create shadow.
+
+```css
+.bevel-container {
+  background-color: var(--color-silver); /* #C0C0C0 */
+  border-top:    3px solid #fff;
+  border-left:   3px solid #fff;
+  border-right:  3px solid #808080;
+  border-bottom: 3px solid #808080;
+}
+```
+
+**Usage:**
+
+```jsx
+<div className="bevel-container p-4">
+  <p className="font-pixel text-sm">System message: Hello, world!</p>
+</div>
+```
+
+</Accordion>
+
+<Accordion title=".bevel-container-inset — Sunken Windows 98 Panel">
+
+**What it does:** The inverse of `.bevel-container`. Dark borders on top/left, white on bottom/right — the element appears pressed *into* the page. Useful for input fields, code display areas, or recessed info blocks. Background defaults to white.
+
+```css
+.bevel-container-inset {
+  background-color: #fff;
+  border-top:    3px solid #808080;
+  border-left:   3px solid #808080;
+  border-right:  3px solid #fff;
+  border-bottom: 3px solid #fff;
+}
+```
+
+**Usage:**
+
+```jsx
+<div className="bevel-container-inset p-3 font-mono text-sm">
+  C:\Users\Guest&gt; _
+</div>
+```
+
+</Accordion>
+
+<Accordion title=".bevel-button — Clickable Bevel Button">
+
+**What it does:** Same raised appearance as `.bevel-container`, but adds `cursor: pointer` and an `:active` state that flips the borders and shifts padding by `2px` to simulate the button physically depressing when clicked — replicating the tactile behavior of Win32 buttons exactly.
+
+```css
+.bevel-button {
+  background-color: var(--color-silver); /* #C0C0C0 */
+  border-top:    3px solid #fff;
+  border-left:   3px solid #fff;
+  border-right:  3px solid #808080;
+  border-bottom: 3px solid #808080;
+  cursor: pointer;
+}
+
+.bevel-button:active {
+  border-top:    3px solid #808080;
+  border-left:   3px solid #808080;
+  border-right:  3px solid #fff;
+  border-bottom: 3px solid #fff;
+  padding-top:   2px;
+  padding-left:  2px;
+}
+```
+
+**Usage:**
+
+```jsx
+<button className="bevel-button px-6 py-2 font-bold text-black">
+  OK
+</button>
+
+<button className="bevel-button px-6 py-2 font-bold text-black">
+  Cancel
+</button>
+```
+
+<Note>
+The `2px` padding shift on `:active` only looks correct if the button already has sufficient padding. Aim for at least `px-4 py-2` so the content visibly nudges on press.
+</Note>
+
+</Accordion>
+
+---
+
+## Retro Border Classes
+
+Two decorative border utilities that use the project's hot-pink and turquoise brand colors.
+
+<Accordion title=".retro-dashed — Hot-Pink Dashed Border">
+
+**What it does:** Applies a 2px dashed border in `var(--color-hotpink)` (`#FF69B4`). Great for calling out special sections, image frames, or sidebar notes that need to feel hand-annotated.
+
+```css
+.retro-dashed {
+  border: 2px dashed var(--color-hotpink);
+}
+```
+
+**Usage:**
+
+```jsx
+<div className="retro-dashed p-4 bg-white">
+  <p>✨ Featured project of the month!</p>
+</div>
+```
+
+</Accordion>
+
+<Accordion title=".retro-dotted — Turquoise Dotted Border">
+
+**What it does:** Applies a 3px dotted border in `var(--color-turquoise)` (`#00CED1`). The slightly heavier stroke (3px vs 2px on dashed) makes the dots read clearly at small sizes.
+
+```css
+.retro-dotted {
+  border: 3px dotted var(--color-turquoise);
+}
+```
+
+**Usage:**
+
+```jsx
+<aside className="retro-dotted p-3 bg-yellow-100">
+  <p className="font-comic text-sm">Tip: hover over the badge for a surprise!</p>
+</aside>
+```
+
+</Accordion>
+
+---
+
+## Text Effect Classes
+
+<Accordion title=".rainbow-text — Animated Rainbow Gradient Text">
+
+**What it does:** Renders text with a full-spectrum rainbow gradient that cycles continuously. It works by applying a wide `linear-gradient` to the background, clipping it to the text shape with `background-clip: text`, setting `color: transparent` so the gradient shows through, and animating `background-position` via the `rainbow-bg` keyframe.
+
+```css
+.rainbow-text {
+  background: linear-gradient(
+    to right,
+    red, orange, #ff0, green, #00f, indigo, violet
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: rainbow-bg 5s linear infinite;
+  background-size: 200% auto;
+}
+```
+
+The underlying `rainbow-bg` keyframe shifts `background-position` from `0%` to `200%`, creating the illusion that the rainbow slides across the text:
+
+```css
+@keyframes rainbow-bg {
+  0%   { background-position: 0%   center; }
+  100% { background-position: 200% center; }
+}
+```
+
+**Usage:**
+
+```jsx
+<h2 className="rainbow-text text-4xl font-bold">
+  Welcome to my page!!
+</h2>
+```
+
+<Warning>
+`background-clip: text` requires the element to have no opaque `background-color` of its own. Do not combine `.rainbow-text` with `bg-*` Tailwind classes — the background will be obscured.
+</Warning>
+
+</Accordion>
+
+---
+
+## Animated Border Classes
+
+<Accordion title=".marching-ants — Animated Selection-Style Dashed Border">
+
+**What it does:** Recreates the "marching ants" dashed outline familiar from selection tools in MS Paint and Photoshop. It draws four 2px dashed lines (top, bottom, left, right) using `background` gradients instead of a real `border`, then animates their `background-position` in sync via the `border-dance` keyframe to make the dashes appear to march around the element perimeter.
+
+```css
+.marching-ants {
+  background:
+    linear-gradient(90deg, #000 50%, transparent 50%),
+    linear-gradient(90deg, #000 50%, transparent 50%),
+    linear-gradient(0deg,  #000 50%, transparent 50%),
+    linear-gradient(0deg,  #000 50%, transparent 50%);
+  background-repeat:
+    repeat-x, repeat-x,
+    repeat-y, repeat-y;
+  background-size:
+    15px 2px, 15px 2px,
+    2px 15px, 2px 15px;
+  background-position:
+    0px 0px,
+    100% 100%,
+    0px 100%,
+    100% 0px;
+  padding: 10px;
+  animation: border-dance 1s infinite linear;
+}
+```
+
+The `border-dance` keyframe advances each of the four background layers by exactly one dash segment (15px) per cycle:
+
+```css
+@keyframes border-dance {
+  0% {
+    background-position:
+      0px 0px,
+      100% 100%,
+      0px 100%,
+      100% 0px;
+  }
+  100% {
+    background-position:
+      15px 0px,
+      calc(100% - 15px) 100%,
+      0px calc(100% - 15px),
+      100% 15px;
+  }
+}
+```
+
+**Usage:**
+
+```jsx
+<div className="marching-ants inline-block">
+  <img src="/projects/screenshot.png" alt="Selected project" />
+</div>
+```
+
+<Note>
+The built-in `padding: 10px` gives the marching-ant border visual breathing room from the content inside. Add extra padding classes if you need more interior space.
+</Note>
+
+</Accordion>
+
+---
+
+## Typography Classes
+
+<Accordion title=".font-pixel — VT323 Pixel Font">
+
+**What it does:** Switches the element's font to VT323, a bitmap-style typeface modeled on the DEC VT320 terminal. Every character is drawn on a pixel grid, giving text an authentic 8-bit or command-line appearance.
+
+```css
+.font-pixel {
+  font-family: VT323, monospace;
+}
+```
+
+**Usage:**
+
+```jsx
+{/* Terminal-style status line */}
+<p className="font-pixel text-green-400 bg-black p-2">
+  &gt; SYSTEM READY_
+</p>
+
+{/* Pixel-art score counter */}
+<span className="font-pixel text-yellow-400 text-3xl">
+  SCORE: 009800
+</span>
+```
+
+<Tip>
+VT323 looks best at larger sizes (`text-xl` and up). At small sizes the bitmap nature can make it hard to read. Combine with `text-green-400` on a dark background for the full terminal aesthetic.
+</Tip>
+
+</Accordion>
+
+<Accordion title=".font-comic — Comic Neue Casual Font">
+
+**What it does:** Applies Comic Neue, a refined revival of Comic Sans. It retains the loose, hand-drawn quality of the original while improving letter spacing and rendering at smaller sizes. Loaded at weights 400 and 700.
+
+```css
+.font-comic {
+  font-family: "Comic Neue", cursive;
+}
+```
+
+**Usage:**
+
+```jsx
+{/* Fun caption text */}
+<p className="font-comic text-sm text-hotpink">
+  Check out my latest work!! 😊
+</p>
+
+{/* Bold comic heading */}
+<h3 className="font-comic font-bold text-2xl text-black">
+  About Me
+</h3>
+```
+
+</Accordion>
+
+---
+
+## Overlay Classes
+
+<Accordion title=".scanlines — CRT Scanline Overlay">
+
+**What it does:** Adds a subtle CRT monitor effect to any element by inserting a `::before` pseudo-element that covers the entire parent with two layered gradients: a repeating horizontal stripe (simulating the dark gap between scan rows at 4px intervals) and a subtle RGB channel separation (simulating phosphor bleeding). The overlay uses `z-index: 50` and `pointer-events: none` so it sits visually on top without blocking interaction.
+
+```css
+.scanlines {
+  position: relative;
+}
+
+.scanlines::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background:
+    linear-gradient(
+      #12101000 50%,   /* transparent rows */
+      #0000001a 50%    /* semi-transparent dark rows */
+    ),
+    linear-gradient(
+      90deg,
+      #ff000008,       /* faint red channel */
+      #00ff0003,       /* faint green channel */
+      #0000ff08        /* faint blue channel */
+    );
+  z-index: 50;
+  background-size: 100% 4px, 6px 100%;
+  pointer-events: none;
+}
+```
+
+**Usage:**
+
+```jsx
+{/* Wrap any element to give it scanlines */}
+<div className="scanlines bevel-container p-4">
+  <p className="font-pixel text-green-400">
+    LOADING PORTFOLIO...
+  </p>
+</div>
+
+{/* Works great on video or image containers too */}
+<div className="scanlines relative w-64 h-48">
+  <img src="/retro-bg.png" alt="CRT display" className="w-full h-full object-cover" />
+</div>
+```
+
+<Warning>
+The `::before` pseudo-element uses `z-index: 50`. Any interactive children of `.scanlines` that need to appear above the overlay must be given a higher `z-index` — otherwise they'll visually appear under the scanline layer. Webmaster handles this by setting `pointer-events: none` on the overlay, so clicks pass through regardless.
+</Warning>
+
+<Note>
+The scanline pseudo-element is completely hidden when `prefers-reduced-motion: reduce` is active (`.scanlines::before { display: none }`). This ensures users sensitive to flickering overlays see a clean display.
+</Note>
+
+</Accordion>
+
+---
+
+## Quick Reference
+
+| Class | Effect | Key Colors |
+|---|---|---|
+| `.bevel-container` | Raised 3D silver panel | `#C0C0C0` bg, `#fff` / `#808080` borders |
+| `.bevel-container-inset` | Sunken 3D white panel | `#fff` bg, `#808080` / `#fff` borders |
+| `.bevel-button` | Clickable raised button, depresses on `:active` | `#C0C0C0` bg |
+| `.retro-dashed` | 2px dashed hot-pink border | `var(--color-hotpink)` |
+| `.retro-dotted` | 3px dotted turquoise border | `var(--color-turquoise)` |
+| `.rainbow-text` | Cycling animated rainbow gradient on text | Full spectrum |
+| `.marching-ants` | Animated marching-ant selection border | `#000` / transparent |
+| `.font-pixel` | VT323 terminal/pixel font | — |
+| `.font-comic` | Comic Neue casual font | — |
+| `.scanlines` | CRT scanline `::before` overlay | Semi-transparent black + RGB |

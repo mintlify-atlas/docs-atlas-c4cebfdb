@@ -1,0 +1,185 @@
+---
+title: "Projects Page: 88×31 Badge Hover-Card Showcase"
+sidebarTitle: "Projects"
+description: "The Projects page shows four projects as 88×31 pixel badges — hovering each reveals a detail card with description, tech stack, and a bevel-button link."
+---
+
+The Projects page (`/projects`) presents four portfolio pieces as classic 88×31 pixel web badges. Each badge acts as a hover trigger: mousing over it expands a detail card beneath it that shows the project title, a blinking **NEW!** badge, a short description, a terminal-styled tech-stack block, and a **"CLICK HERE TO ENTER SITE"** bevel button. On mouse-out the card collapses back. The page is built around a 2-column responsive grid powered by a single `ne` data array.
+
+## Route
+
+| Path        | Component function |
+|-------------|--------------------|
+| `/projects` | `oe()` in `assets/main.js` |
+
+## Projects Data Array
+
+All four projects are defined in the `ne` constant immediately above `oe()`:
+
+```js
+const ne = [
+  {
+    id: 1,
+    title: "GeoChat",
+    desc: "A real-time chat application built with WebSockets. Looks like AIM, works like Slack.",
+    tech: "React, Node.js, Socket.io",
+    color: "#000080",
+    link: "#",
+  },
+  {
+    id: 2,
+    title: "Winampify",
+    desc: "Spotify web player wrapped in a classic Winamp skin. It really whips the llama's ass.",
+    tech: "TypeScript, Spotify API",
+    color: "#800000",
+    link: "#",
+  },
+  {
+    id: 3,
+    title: "SpaceJam 2.0",
+    desc: "Modern recreation of the classic Space Jam website using Three.js and React Fiber.",
+    tech: "Three.js, React",
+    color: "#008000",
+    link: "#",
+  },
+  {
+    id: 4,
+    title: "Guestbook Pro",
+    desc: "Enterprise-grade guestbook as a service. Because every SaaS needs a guestbook.",
+    tech: "Next.js, PostgreSQL",
+    color: "#800080",
+    link: "#",
+  },
+];
+```
+
+Each object's `color` value is passed directly to `Button88x31` as the badge background colour (hex strings using classic web-safe palette values).
+
+## Hover Interaction
+
+The active project ID is stored in `useState(null)`. `onMouseEnter` sets it to the project's `id`; `onMouseLeave` resets it to `null`:
+
+```jsx
+const [s, r] = useState(null);
+
+<div
+  className="relative group"
+  onMouseEnter={() => r(t.id)}
+  onMouseLeave={() => r(null)}
+>
+```
+
+The detail card uses a CSS transition to scale from 95% → 100% opacity + scale when `s === t.id`:
+
+```jsx
+<div
+  className={`
+    transition-all duration-300 ease-in-out origin-top
+    ${s === t.id
+      ? "scale-100 opacity-100"
+      : "scale-95 opacity-0 pointer-events-none absolute w-full"}
+  `}
+>
+```
+
+<Tip>
+  The `pointer-events-none absolute` on the hidden state prevents the collapsed card from blocking mouse events on adjacent badges in the grid.
+</Tip>
+
+## Badge Component
+
+Each badge is rendered via `<Button88x31 title={t.title} color={t.color} />` from `components/Button88x31.js`. The badge is centred with `flex justify-center mb-2`.
+
+## Detail Card Anatomy
+
+When a badge is hovered, the expanded card renders inside `bevel-container-inset bg-white p-4 retro-dotted`:
+
+<CardGroup cols={2}>
+  <Card title="Header Row" icon="star">
+    Project title in `text-2xl font-bold text-hotpink font-comic`, plus a `bg-yellow-300 font-pixel animate-bob` **NEW!** badge aligned to the right.
+  </Card>
+  <Card title="Description" icon="align-left">
+    Short description in `font-comic text-sm mb-4 h-16`. Fixed height keeps all cards the same size regardless of description length.
+  </Card>
+  <Card title="Tech Stack Block" icon="code">
+    `bg-black text-green-400 font-pixel text-xs p-2` terminal-style div prefixed with `"TECH: "`.
+  </Card>
+  <Card title="CTA Button" icon="cursor-arrow-rays">
+    `<a>` tag styled as a `bevel-button`, full-width, `hover:bg-turquoise hover:text-white` transition, text: **"CLICK HERE TO ENTER SITE"**.
+  </Card>
+</CardGroup>
+
+```jsx
+<div className="bevel-container-inset bg-white p-4 retro-dotted">
+  <div className="flex justify-between items-start mb-2">
+    <h3 className="text-2xl font-bold text-hotpink font-comic">{t.title}</h3>
+    <span className="bg-yellow-300 text-black font-pixel text-xs px-1 border border-black animate-bob">
+      NEW!
+    </span>
+  </div>
+  <p className="font-comic text-sm mb-4 h-16">{t.desc}</p>
+  <div className="bg-black text-green-400 font-pixel text-xs p-2 mb-4">
+    TECH: {t.tech}
+  </div>
+  <a
+    href={t.link}
+    className="bevel-button block w-full text-center py-2 font-bold text-black no-underline hover:bg-turquoise hover:text-white transition-colors"
+  >
+    CLICK HERE TO ENTER SITE
+  </a>
+</div>
+```
+
+## Grid Layout
+
+Projects are arranged in a 2-column grid on `md:` screens and stacked on mobile:
+
+```jsx
+<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+  {ne.map(t => ( ... ))}
+</div>
+```
+
+## Footer
+
+A `font-pixel text-sm text-gray-600` centred line appears below the grid:
+
+```jsx
+<div className="text-center font-pixel text-sm text-gray-600">
+  More projects coming soon... check back later!
+</div>
+```
+
+## Customisation Guide
+
+<CodeGroup>
+```js Add a New Project
+// assets/main.js — append to the ne array
+{
+  id: 5,
+  title: "My New Project",
+  desc: "A short description of what it does.",
+  tech: "Svelte, Supabase",
+  color: "#006400",   // any hex colour for the badge
+  link: "https://myproject.dev",
+},
+```
+
+```js Change a Project Link
+// In the ne array, set the link field to a real URL
+{ id: 1, title: "GeoChat", ..., link: "https://geochat.example.com" },
+```
+
+```js Swap Badge Colours
+// Each color is passed as a hex string to Button88x31
+// Classic web-safe palette suggestions:
+// Navy:    #000080  Maroon: #800000
+// Green:   #008000  Purple: #800080
+// Teal:    #008080  Olive:  #808000
+{ id: 2, title: "Winampify", ..., color: "#008080" },
+```
+</CodeGroup>
+
+<Note>
+  The page title `~ My Stuff ~` is an `h2` in `text-5xl text-center text-turquoise font-bold drop-shadow-[2px_2px_0_#FFF]`. Update the string directly inside `oe()` to rename the section.
+</Note>

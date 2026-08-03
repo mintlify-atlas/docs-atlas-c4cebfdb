@@ -1,0 +1,206 @@
+---
+title: "Contact: Retro Guestbook Form Page"
+sidebarTitle: "Contact"
+description: "The Contact page renders a classic Web 1.0 guestbook form with name, email, URL, and message fields, plus a hot-pink SUBMIT!! button and success state."
+---
+
+The Contact page (`/contact`) is a faithful recreation of the classic 2000s personal website guestbook. Visitors fill out their handle, optional email, website URL, and a free-text message before hitting the enormous hot-pink **SUBMIT!!** button. On submission the form is replaced by a bouncing green success message. The page title `Sign My Guestbook!` is rendered in Pacifico font with a slight anti-clockwise rotation (`-rotate-3`).
+
+## Route
+
+| Path       | Component function |
+|------------|--------------------|
+| `/contact` | `he()` in `assets/main.js` |
+
+## Success State
+
+Form submission state is managed with a single `useState(false)` boolean. The `onSubmit` handler calls `event.preventDefault()`, sets the flag to `true`, and resets it after 3 seconds via `setTimeout`:
+
+```js
+const [s, r] = useState(false);
+
+const t = (a) => {
+  a.preventDefault();
+  r(true);
+  setTimeout(() => r(false), 3000);
+};
+```
+
+When `s` is `true`, the form is replaced by a success panel:
+
+```jsx
+<div className="text-center py-12">
+  <h3 className="text-3xl text-green-600 font-comic font-bold animate-bounce mb-4">
+    Thanks for signing!
+  </h3>
+  <p className="font-pixel text-lg">Your entry has been added to the database.</p>
+</div>
+```
+
+<Note>
+  The success state resets after 3 seconds, returning the empty form. No data is actually persisted — this is a static portfolio SPA with no backend.
+</Note>
+
+## Page Layout
+
+The form is centred at `max-w-2xl mx-auto`. The title sits in a `text-center mb-8` div, and the form itself is nested inside `bevel-container bg-silver p-6` → `bg-yellow-100 p-6 retro-dashed`.
+
+```jsx
+<div className="max-w-2xl mx-auto">
+  <div className="text-center mb-8">
+    <h2 className="text-6xl text-hotpink font-comic font-bold drop-shadow-[3px_3px_0_#FFF] transform -rotate-3">
+      Sign My Guestbook!
+    </h2>
+  </div>
+  <div className="bevel-container bg-silver p-6">
+    <div className="bg-yellow-100 p-6 retro-dashed">
+      {s ? <SuccessMessage /> : <GuestbookForm />}
+    </div>
+  </div>
+</div>
+```
+
+## Form Fields
+
+All fields use the shared input style `w-full border-2 border-gray-400 p-2 shadow-inner focus:border-hotpink focus:outline-none`. Labels are `font-bold text-blue-800 mb-1`.
+
+<CardGroup cols={2}>
+  <Card title="Name / Handle" icon="user">
+    `type="text"` · `required` · `placeholder="e.g. CoolSurfer99"`
+  </Card>
+  <Card title="Email (optional)" icon="envelope">
+    `type="email"` · not required · `placeholder="will not be published"`
+  </Card>
+  <Card title="Website URL" icon="globe-alt">
+    `type="url"` · `defaultValue="http://"` · pre-filled with the protocol
+  </Card>
+  <Card title="Message" icon="chat-bubble-left">
+    `<textarea>` · `required` · `rows={5}` · `resize-none` · `placeholder="Leave a cool message!"`
+  </Card>
+</CardGroup>
+
+```jsx
+// Name field
+<div>
+  <label className="block font-bold text-blue-800 mb-1">Name / Handle:</label>
+  <input
+    type="text"
+    required
+    className="w-full border-2 border-gray-400 p-2 shadow-inner focus:border-hotpink focus:outline-none"
+    placeholder="e.g. CoolSurfer99"
+  />
+</div>
+
+// Email field
+<div>
+  <label className="block font-bold text-blue-800 mb-1">Email (optional):</label>
+  <input
+    type="email"
+    className="w-full border-2 border-gray-400 p-2 shadow-inner focus:border-hotpink focus:outline-none"
+    placeholder="will not be published"
+  />
+</div>
+
+// URL field
+<div>
+  <label className="block font-bold text-blue-800 mb-1">Website URL:</label>
+  <input
+    type="url"
+    defaultValue="http://"
+    className="w-full border-2 border-gray-400 p-2 shadow-inner focus:border-hotpink focus:outline-none"
+  />
+</div>
+
+// Message textarea
+<div>
+  <label className="block font-bold text-blue-800 mb-1">Message:</label>
+  <textarea
+    required
+    rows={5}
+    className="w-full border-2 border-gray-400 p-2 shadow-inner focus:border-hotpink focus:outline-none resize-none"
+    placeholder="Leave a cool message!"
+  />
+</div>
+```
+
+## Private Checkbox
+
+Below the textarea, a checkbox labelled "Make this entry private (only webmaster can see)" provides a privacy toggle:
+
+```jsx
+<div className="flex items-center gap-2 mb-4">
+  <input type="checkbox" id="private" className="w-4 h-4" />
+  <label htmlFor="private" className="text-sm">
+    Make this entry private (only webmaster can see)
+  </label>
+</div>
+```
+
+## SUBMIT!! Button
+
+The submit button is intentionally oversized and visually prominent:
+
+```jsx
+<div className="text-center pt-4">
+  <button
+    type="submit"
+    className="bevel-button bg-hotpink text-white text-3xl font-bold py-4 px-12 transform hover:scale-105 transition-transform"
+    style={{ textShadow: "2px 2px 0 #000" }}
+  >
+    SUBMIT!!
+  </button>
+</div>
+```
+
+| Property               | Value                                      |
+|------------------------|--------------------------------------------|
+| Background             | `bg-hotpink` (`#FF69B4`)                   |
+| Text colour            | `text-white`                               |
+| Text size              | `text-3xl`                                 |
+| Text shadow            | `2px 2px 0 #000` (inline style)            |
+| Padding                | `py-4 px-12`                               |
+| Hover effect           | `hover:scale-105 transition-transform`     |
+| Border/bevel style     | `bevel-button` class                       |
+
+## Customisation Guide
+
+<CodeGroup>
+```js Change Success Message Text
+// In he() — edit the success panel strings
+<h3 className="text-3xl text-green-600 font-comic font-bold animate-bounce mb-4">
+  Thanks for signing!
+</h3>
+<p className="font-pixel text-lg">Your entry has been added to the database.</p>
+```
+
+```js Change the Success Reset Delay
+// In he() — change the setTimeout duration (milliseconds)
+setTimeout(() => r(false), 3000);  // currently 3 seconds
+// Change to 5000 for 5 seconds, or remove the call entirely
+// to keep the success state visible until page refresh.
+```
+
+```js Change the Page Title
+// In he() — update the h2 text and rotation
+<h2 className="text-6xl text-hotpink font-comic font-bold drop-shadow-[3px_3px_0_#FFF] transform -rotate-3">
+  Sign My Guestbook!
+</h2>
+// Adjust -rotate-3 to -rotate-1 for a subtler tilt,
+// or rotate-2 to tilt the other direction.
+```
+
+```js Change the Name Placeholder
+// In he() — update the placeholder on the Name input
+<input
+  type="text"
+  required
+  placeholder="e.g. CoolSurfer99"
+  ...
+/>
+// Replace "e.g. CoolSurfer99" with any placeholder text.
+```
+</CodeGroup>
+
+<Tip>
+  To wire up a real backend, replace the `t` submit handler in `he()` with a `fetch()` or `axios` call posting the form data to an API endpoint. Keep the `r(true)` call after a successful response to trigger the success state.
+</Tip>

@@ -1,0 +1,152 @@
+---
+title: "Bevel UI: Windows 98-Style Container and Button Classes"
+sidebarTitle: "Bevel UI"
+description: "Webmaster's bevel UI classes recreate Windows 98 chrome with raised and sunken border effects — three CSS classes for containers, inset panels, and clickable buttons."
+---
+
+Webmaster's bevel UI system is a set of three CSS utility classes that recreate the iconic Windows 98 "chrome" aesthetic. The effect works by exploiting asymmetric border colors: a white (or light gray) border on the top and left edges combined with a medium gray border on the bottom and right edges creates the optical illusion of a raised surface lit from the top-left. Inverting those colors makes the element look sunken or pressed in. No images, no box-shadows — just four border values.
+
+All three classes are defined in `assets/main.css` and reference the `--color-silver` CSS custom property (`#C0C0C0`), the same shade of silver used in the Windows 98 taskbar and dialog chrome.
+
+---
+
+## `.bevel-container`
+
+A **raised panel**. Light borders on the top and left edges, dark borders on the bottom and right edges. Used for cards, sidebars, nav bars, and outer wrappers wherever you want an element to appear to pop off the page.
+
+```css
+.bevel-container {
+  background-color: var(--color-silver); /* #C0C0C0 */
+  border-top:    3px solid #ffffff;
+  border-left:   3px solid #ffffff;
+  border-right:  3px solid #808080;
+  border-bottom: 3px solid #808080;
+}
+```
+
+### Usage
+
+```jsx
+<div className="bevel-container p-4 bg-silver">
+  <p className="font-pixel">I am a raised panel.</p>
+</div>
+```
+
+<Tip>
+  Pair with `bg-silver` (`background-color: #C0C0C0`) for the most authentic Windows 98 dialog box look. The class sets `background-color` itself, but Tailwind's `bg-silver` utility ensures the correct shade is applied even when the CSS variable isn't in scope.
+</Tip>
+
+---
+
+## `.bevel-container-inset`
+
+A **sunken panel**. The border colors are flipped — dark on top and left, light on bottom and right — making the element appear to recede into the page. Used for text input areas, content panes, and any region that should look like a recessed well.
+
+```css
+.bevel-container-inset {
+  background-color: #ffffff;
+  border-top:    3px solid #808080;
+  border-left:   3px solid #808080;
+  border-right:  3px solid #ffffff;
+  border-bottom: 3px solid #ffffff;
+}
+```
+
+### Usage
+
+```jsx
+<div className="bevel-container-inset bg-white p-6">
+  <p className="font-comic">I am a sunken content panel.</p>
+</div>
+```
+
+<Tip>
+  Pair with `bg-white` for the default inset look. The About page and Skills page both use this pattern — a `.bevel-container` outer wrapper with `.bevel-container-inset bg-white` as the inner content pane, exactly replicating a Windows 98 dialog box with a client area.
+</Tip>
+
+---
+
+## `.bevel-button`
+
+A **raised, clickable button**. Identical raised-border rules to `.bevel-container` plus `cursor: pointer`. On `:active` (mousedown), the borders invert to simulate a physical press — the light/dark sides swap — and a small `padding-top` / `padding-left` offset nudges the content down-right by 2px to reinforce the pressed-in feel.
+
+```css
+.bevel-button {
+  background-color: var(--color-silver);
+  border-top:    3px solid #ffffff;
+  border-left:   3px solid #ffffff;
+  border-right:  3px solid #808080;
+  border-bottom: 3px solid #808080;
+  cursor: pointer;
+}
+
+.bevel-button:active {
+  border-top:    3px solid #808080;
+  border-left:   3px solid #808080;
+  border-right:  3px solid #ffffff;
+  border-bottom: 3px solid #ffffff;
+  padding-top:   2px;
+  padding-left:  2px;
+}
+```
+
+### Usage
+
+```jsx
+<button className="bevel-button px-4 py-2 font-pixel text-lg text-black">
+  Click Me
+</button>
+
+{/* As a block-level link */}
+<a href="/contact" className="bevel-button block w-full text-center py-2 font-bold text-black no-underline">
+  CLICK HERE TO ENTER SITE
+</a>
+```
+
+---
+
+## Composition Pattern
+
+The most common pattern in Webmaster is a `.bevel-container` wrapping a `.bevel-container-inset`, creating a two-layer Windows 98 dialog effect. This appears on the About page, Skills page, and the homepage sidebar:
+
+```jsx
+{/* Windows 98 dialog box pattern */}
+<div className="bevel-container bg-silver p-4 md:p-8">
+  <div className="bevel-container-inset bg-white p-6">
+    <h2 className="text-4xl text-turquoise mb-4">Dialog Title</h2>
+    <p className="font-comic">
+      Dialog content goes here. The outer silver raised frame
+      and the inner white sunken pane together produce the
+      classic Windows 98 dialog chrome.
+    </p>
+    <div className="mt-4 flex justify-end gap-2">
+      <button className="bevel-button px-6 py-1 font-pixel">OK</button>
+      <button className="bevel-button px-6 py-1 font-pixel">Cancel</button>
+    </div>
+  </div>
+</div>
+```
+
+<Tip>
+  For the `.bevel-container-inset` inner panel, adding a retro border pattern like `retro-dashed` (hot-pink dashed border) or `retro-dotted` (turquoise dotted border) on top of the bevel inset is a recurring motif across Webmaster pages. These are separate CSS utilities in `main.css` that can be freely composed with the bevel classes.
+</Tip>
+
+---
+
+## CSS Custom Properties Reference
+
+The bevel classes depend on this CSS custom property defined in `main.css`:
+
+```css
+:root {
+  --color-silver: #C0C0C0;
+}
+```
+
+The three hardcoded hex values used across all bevel classes:
+
+| Value     | Role                       |
+|-----------|----------------------------|
+| `#ffffff` | Light edge (highlight)     |
+| `#808080` | Dark edge (shadow)         |
+| `#C0C0C0` | Background (`--color-silver`) |

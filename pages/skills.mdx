@@ -1,0 +1,157 @@
+---
+title: "Skills Page: Arcade High-Score Scoreboard"
+sidebarTitle: "Skills"
+description: "The Skills page renders seven technologies as an arcade high-score leaderboard with blinking headers, ranked entries, and a coin-insert prompt."
+---
+
+The Skills page (`/skills`) reimagines a standard competency list as a classic arcade high-score screen. Seven technologies are displayed as leaderboard entries — complete with rank labels, numeric scores, three-character initials, and a pulsing "INSERT COIN TO CONTINUE..." footer. Below the scoreboard, four trait cards (🧠 🐛 ☕ 💾) are arranged in a 2-to-4-column responsive grid.
+
+## Route
+
+| Path      | Component function |
+|-----------|--------------------|
+| `/skills` | `ie()` in `assets/main.js` |
+
+## Scores Data Array
+
+The full leaderboard is driven by the `ae` constant defined just above `ie()`:
+
+```js
+const ae = [
+  { rank: "1ST", name: "REACT.JS",    score: "999,990", initial: "PRO" },
+  { rank: "2ND", name: "TYPESCRIPT",  score: "850,400", initial: "TSX" },
+  { rank: "3RD", name: "CSS/TAILWIND",score: "742,100", initial: "CSS" },
+  { rank: "4TH", name: "NODE.JS",     score: "620,000", initial: "API" },
+  { rank: "5TH", name: "HTML5",       score: "555,555", initial: "WEB" },
+  { rank: "6TH", name: "SQL/DB",      score: "404,404", initial: "DBA" },
+  { rank: "7TH", name: "PHOTOSHOP",   score: "313,370", initial: "GFX" },
+];
+```
+
+Each object maps to a table row with four visible fields: **RANK**, **SKILL** (the `name` field), **SCORE**, and **NAME** (the 3-character `initial`).
+
+## Visual Hierarchy
+
+<CardGroup cols={3}>
+  <Card title="1st Place" icon="trophy">
+    Entire row in `text-cyan-400`. Carries the `▲ animate-bounce` indicator.
+  </Card>
+  <Card title="2nd & 3rd Place" icon="arrow-up">
+    Default white text. Carry the `▲ animate-bounce` indicator (`r < 3` condition).
+  </Card>
+  <Card title="4th–7th Place" icon="list">
+    Default white text, no bounce indicator. Hover triggers `bg-white/10` highlight.
+  </Card>
+</CardGroup>
+
+## Scoreboard Container
+
+The dark arcade cabinet is styled with `bg-black p-8 border-8 border-silver bevel-container-inset relative overflow-hidden`. A subtle `bg-gradient-to-b from-white/10 to-transparent` overlay covers the top third to simulate a monitor reflection:
+
+```jsx
+<div className="bg-black p-8 border-8 border-silver bevel-container-inset relative overflow-hidden">
+  {/* Screen glare overlay */}
+  <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+
+  {/* Blinking header */}
+  <h3 className="font-pixel text-3xl text-red-500 animate-blink">HIGH SCORES</h3>
+  ...
+</div>
+```
+
+## Column Header Row
+
+The header row uses `text-yellow-400` with a `border-b-2 border-yellow-400` separator:
+
+```jsx
+<div className="flex justify-between text-yellow-400 border-b-2 border-yellow-400 pb-2 mb-4">
+  <span className="w-16">RANK</span>
+  <span className="flex-1 text-center">SKILL</span>
+  <span className="w-32 text-right">SCORE</span>
+  <span className="w-16 text-right">NAME</span>
+</div>
+```
+
+## Score Row Rendering
+
+Each entry is rendered via `.map()`. The `r === 0` check applies cyan colouring to the top entry; `r < 3` conditionally renders the bouncing triangle:
+
+```jsx
+ae.map((s, r) => (
+  <div
+    key={s.name}
+    className={`flex justify-between hover:bg-white/10 p-1 transition-colors ${
+      r === 0 ? "text-cyan-400" : ""
+    }`}
+  >
+    <span className="w-16">{s.rank}</span>
+    <span className="flex-1 text-center flex items-center justify-center gap-2">
+      {s.name}
+      {r < 3 && <span className="text-xs text-yellow-400 animate-bounce">▲</span>}
+    </span>
+    <span className="w-32 text-right">{s.score}</span>
+    <span className="w-16 text-right">{s.initial}</span>
+  </div>
+))
+```
+
+## "INSERT COIN" Footer
+
+At the bottom of the arcade cabinet, a green pulsing prompt mimics a real arcade attract screen:
+
+```jsx
+<div className="mt-12 text-center font-pixel text-green-400 text-xl animate-pulse">
+  INSERT COIN TO CONTINUE...
+</div>
+```
+
+## Trait Cards
+
+Four soft-skill badges sit below the scoreboard in a grid that is 2 columns on mobile and 4 on `md:` breakpoint:
+
+```jsx
+<div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center font-comic">
+```
+
+Each card is a `bevel-container p-2 bg-silver` wrapping a `bg-white p-2` inner panel with an emoji and a bold label:
+
+| Emoji | Label           |
+|-------|-----------------|
+| 🧠    | Fast Learner    |
+| 🐛    | Bug Squasher    |
+| ☕    | Coffee Powered  |
+| 💾    | Always Backs Up |
+
+## Customisation Guide
+
+<CodeGroup>
+```js Add / Modify Skills
+// assets/main.js — edit the ae array before ie()
+const ae = [
+  { rank: "1ST", name: "REACT.JS",    score: "999,990", initial: "PRO" },
+  // Add a new entry:
+  { rank: "8TH", name: "RUST",        score: "250,000", initial: "RST" },
+];
+// Rows are rendered in array order, so sort by score descending
+// to keep the leaderboard feel.
+```
+
+```js Change Score or Rank Label
+// assets/main.js — ae array
+{ rank: "2ND", name: "TYPESCRIPT", score: "850,400", initial: "TSX" },
+// Change "850,400" to any string — commas are purely cosmetic.
+// Change "TSX" to any 3-character string for the NAME column.
+```
+
+```js Adjust Top-N Cyan / Bounce
+// In ie() — change the condition for cyan highlight:
+r === 0 ? "text-cyan-400" : ""   // currently only rank 1 is cyan
+
+// Change the bounce threshold from top 3 to top 5:
+r < 5 && <span className="text-xs text-yellow-400 animate-bounce">▲</span>
+```
+</CodeGroup>
+
+<Note>
+  The `"MAD SKILLZ"` title sits on a `bg-black` background with a `border-4 border-hotpink` frame and renders the text in `text-lemon` (a custom yellow utility class). It's wrapped in a `text-center mb-8` div — update the heading string directly inside the `<h2>` at the top of `ie()`.
+</Note>

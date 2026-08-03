@@ -1,0 +1,139 @@
+---
+title: "UnderConstructionSign: Retro Under Construction Banner"
+sidebarTitle: "UnderConstructionSign"
+description: "UnderConstructionSign renders a blinking, bouncing under construction notice with yellow warning signs and a hot-pink dashed border — perfect for placeholder sections."
+---
+
+`UnderConstructionSign` is a self-contained banner that announces a section isn't ready yet, in the most honest and enthusiastic way possible. Two yellow octagon warning signs bounce on either side of the blinking heading "PARDON OUR DUST!" — all wrapped in a hot-pink dashed retro border. It's used at the bottom of the About page as a genuine placeholder while that section is being built out.
+
+## Props
+
+`UnderConstructionSign` accepts no props. Its content and styling are fixed.
+
+<ParamField body="(none)" type="–">
+  Drop `<UnderConstructionSign />` directly into any section you haven't finished yet. No configuration needed.
+</ParamField>
+
+## Visual Anatomy
+
+### Container
+
+```jsx
+<div className="flex flex-col items-center justify-center p-4 retro-dashed bg-yellow-100 my-4">
+```
+
+- **`retro-dashed`** — custom utility class that applies a hot-pink dashed border (`border-dashed border-2 border-pink-500` or equivalent), the signature Web 1.0 "work in progress" visual signal
+- **`bg-yellow-100`** — pale yellow fill, matching the warning-sign color family
+- **`flex flex-col items-center justify-center`** — centers the sign row and sub-text vertically and horizontally
+- **`p-4 my-4`** — comfortable inner padding with vertical margin to separate it from surrounding content
+
+### Warning Signs
+
+Each octagon is a `w-12 h-12` `relative` container with two absolutely-positioned children:
+
+```jsx
+<div className="w-12 h-12 relative animate-bounce">
+  {/* Yellow octagon background */}
+  <div
+    className="absolute inset-0 bg-yellow-500"
+    style={{
+      clipPath: 'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)',
+    }}
+  />
+  {/* Black center with "!" */}
+  <div className="absolute top-2 left-2 right-2 bottom-2 bg-black flex items-center justify-center">
+    <span className="text-yellow-500 font-pixel text-2xl">!</span>
+  </div>
+</div>
+```
+
+The CSS `clip-path` polygon with eight points clips the outer `div` into an octagon — the same shape as a real STOP sign. The inner `div` is inset by `8px` on all sides (`top-2 left-2 right-2 bottom-2`) creating a black border around the exclamation mark.
+
+The second sign gets a staggered bounce:
+
+```jsx
+<div className="w-12 h-12 relative animate-bounce" style={{ animationDelay: '0.5s' }}>
+```
+
+The 0.5s delay means the two signs are always out of phase — one up while the other is down — for an alternating bounce effect.
+
+### Heading & Sub-text
+
+```jsx
+<h3 className="text-2xl font-comic font-bold text-black animate-blink">
+  PARDON OUR DUST!
+</h3>
+
+<p className="font-pixel mt-2 text-lg">
+  This section is currently under construction.
+</p>
+```
+
+- **`animate-blink`** — custom Tailwind animation that alternates `opacity` between 1 and 0, recreating the classic blinking text effect of early browsers
+- **`font-comic font-bold`** — Comic Sans in bold weight for the heading (the most earnest font available)
+- **`font-pixel mt-2 text-lg`** — pixel font for the descriptive sub-text, visually distinct from the heading
+
+## Full Component Structure
+
+```jsx
+export function UnderConstructionSign() {
+  return (
+    <div className="flex flex-col items-center justify-center p-4 retro-dashed bg-yellow-100 my-4">
+      <div className="flex items-center gap-4">
+
+        {/* Left warning sign */}
+        <div className="w-12 h-12 relative animate-bounce">
+          <div className="absolute inset-0 bg-yellow-500"
+               style={{ clipPath: 'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)' }} />
+          <div className="absolute top-2 left-2 right-2 bottom-2 bg-black flex items-center justify-center">
+            <span className="text-yellow-500 font-pixel text-2xl">!</span>
+          </div>
+        </div>
+
+        {/* Blinking heading */}
+        <h3 className="text-2xl font-comic font-bold text-black animate-blink">
+          PARDON OUR DUST!
+        </h3>
+
+        {/* Right warning sign — staggered by 0.5s */}
+        <div className="w-12 h-12 relative animate-bounce" style={{ animationDelay: '0.5s' }}>
+          <div className="absolute inset-0 bg-yellow-500"
+               style={{ clipPath: 'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)' }} />
+          <div className="absolute top-2 left-2 right-2 bottom-2 bg-black flex items-center justify-center">
+            <span className="text-yellow-500 font-pixel text-2xl">!</span>
+          </div>
+        </div>
+
+      </div>
+
+      <p className="font-pixel mt-2 text-lg">
+        This section is currently under construction.
+      </p>
+    </div>
+  );
+}
+```
+
+## Usage
+
+Import and drop `<UnderConstructionSign />` at the bottom of any page section that isn't finished yet:
+
+```jsx
+import { UnderConstructionSign } from './components/UnderConstructionSign';
+
+export function About() {
+  return (
+    <main>
+      <section>
+        <h2 className="font-pixel text-2xl">My Story</h2>
+        <p>Coming soon...</p>
+        <UnderConstructionSign />
+      </section>
+    </main>
+  );
+}
+```
+
+<Tip>
+  For extra retro flair, wrap the parent section in an additional `retro-dashed` container — double-dashed borders are a power move. You can also pair `UnderConstructionSign` with a `Button88x31` linking to your "coming soon" mailing list for the full early-2000s experience.
+</Tip>

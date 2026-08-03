@@ -1,0 +1,132 @@
+---
+title: "MarqueeStrip: Scrolling Ticker Component"
+sidebarTitle: "MarqueeStrip"
+description: "MarqueeStrip renders an infinitely scrolling text ticker with configurable content and CSS class overrides, using a custom CSS marquee animation."
+---
+
+`MarqueeStrip` is a horizontal scrolling text ticker — the spiritual successor to the old HTML `<marquee>` tag. It scrolls its `text` content continuously from right to left using a custom CSS keyframe animation, giving Webmaster that essential late-90s homepage energy. The component appears twice on the homepage: once at the top with a black background and lemon-yellow text, and once at the bottom with a turquoise background and black text.
+
+## How It Works
+
+The component renders its `text` prop **twice** side-by-side inside a single `inline-block` div, separated by whitespace. This creates a seamless loop: as the first copy scrolls off the left edge, the second copy is already scrolling in from the right, with no visible gap or jump.
+
+```
+[  text content  ]  [  text content  ]
+       ←←←←←←←←←←←←←←←←←←←←←←←←←←←
+```
+
+The inner div carries the `.animate-marquee` class, which is powered by a `@keyframes marquee` animation defined in `main.css`:
+
+```css
+@keyframes marquee {
+  0%   { transform: translate(100%); }
+  100% { transform: translate(-100%); }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 15s linear infinite;
+}
+```
+
+The outer container is `overflow-hidden whitespace-nowrap` to clip the scrolling content and prevent line breaks.
+
+<Note>
+  When the user has `prefers-reduced-motion: reduce` enabled in their OS accessibility settings, the `.animate-marquee` animation is disabled globally in `main.css`. The text will still render but will not scroll.
+</Note>
+
+## Props
+
+<ParamField path="text" type="string" required>
+  The text string to display in the scrolling ticker. Rendered twice back-to-back to create the seamless loop effect.
+</ParamField>
+
+<ParamField path="className" type="string">
+  CSS classes appended to the outer container element. Use this to override the default color scheme.
+
+  **Default:** `"bg-black text-lemon font-pixel text-xl py-1 border-y-2 border-hotpink"`
+
+  The default produces a black background with lemon-yellow (`#FFFACD`) text in the VT323 pixel font, bordered top and bottom with 2px hot-pink lines.
+</ParamField>
+
+## Usage
+
+### Default — top homepage strip
+
+The default `className` produces the black/lemon ticker used at the top of the Webmaster homepage:
+
+```jsx
+import { MarqueeStrip } from './components/MarqueeStrip';
+
+<MarqueeStrip
+  text="+++ WELCOME TO MY HOMEPAGE!!! +++ BEST VIEWED IN 800x600 +++ NO FRAMES PLEASE +++"
+/>
+```
+
+This renders with the built-in class string:
+`bg-black text-lemon font-pixel text-xl py-1 border-y-2 border-hotpink`
+
+### Custom className — bottom homepage strip
+
+Pass a `className` override to swap the color scheme. The bottom strip on the homepage uses a turquoise background with black text and black borders:
+
+```jsx
+<MarqueeStrip
+  text="+++ UPDATED: 10/24/2001 +++ ADDED NEW MIDI FILES +++ CHECK OUT MY LINKS PAGE +++"
+  className="bg-turquoise text-black border-black"
+/>
+```
+
+### Side-by-side in a layout
+
+```jsx
+import { MarqueeStrip } from './components/MarqueeStrip';
+
+export default function PageLayout({ children }) {
+  return (
+    <div className="flex flex-col h-full">
+      <MarqueeStrip
+        text="+++ WELCOME TO MY HOMEPAGE!!! +++ BEST VIEWED IN 800x600 +++"
+      />
+
+      <main className="flex-1 p-4">
+        {children}
+      </main>
+
+      <MarqueeStrip
+        text="+++ UPDATED: 10/24/2001 +++ CHECK OUT MY LINKS PAGE +++"
+        className="bg-turquoise text-black border-black"
+      />
+    </div>
+  );
+}
+```
+
+## Component Implementation
+
+```jsx
+// components/MarqueeStrip.js (source)
+export function MarqueeStrip({
+  text,
+  className = '',
+}) {
+  return (
+    <div
+      className={`overflow-hidden whitespace-nowrap bg-black text-lemon font-pixel text-xl py-1 border-y-2 border-hotpink ${className}`}
+    >
+      <div className="animate-marquee inline-block">
+        {text}{"            "}{text}
+      </div>
+    </div>
+  );
+}
+```
+
+<Note>
+  The `className` prop is **appended** to the default class string, not replacing it. If you want a fully custom color scheme, be aware that Tailwind's cascade order matters — you may need to use `!important` modifiers (e.g. `!bg-white`) if a default class conflicts with your override.
+</Note>
+
+## Animation Timing
+
+The `.animate-marquee` keyframe runs at **15 seconds linear infinite**. For longer `text` strings the scroll speed will feel slower (the same 15s duration covers more content), so consider shortening the text or adjusting the animation duration via a custom class if the pacing feels off.

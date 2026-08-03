@@ -1,47 +1,140 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Get Started with Webmaster in Under 5 Minutes"
+sidebarTitle: "Quickstart"
+description: "Clone the Webmaster repo, install dependencies with npm, and launch the Vite dev server to see the retro portfolio running locally in minutes."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+Webmaster is a Vite-powered React SPA. Getting it running locally takes one `git clone`, one install command, and one dev server command — the whole thing is up in under five minutes. The steps below assume you're working from the original source (not the pre-built static output in the repository root).
 
 ## Prerequisites
 
-Before you begin, you must have:
-
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
-
-## Get started
+- **Node.js 18 or later** — Vite 5 requires Node 18+. Run `node -v` to check your version.
+- **npm** (bundled with Node) — yarn and pnpm work too; see the install variants below.
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+
+  <Step title="Clone the Repository">
+    Clone the Webmaster repo from GitHub and enter the project directory:
 
     ```bash
-    npm install your-package
+    git clone https://github.com/apursley2012/webmaster
+    cd webmaster
     ```
+
+    The repository root contains `index.html`, the pre-built `assets/` directory, `components/`, and `pages/`. The Vite source files (if present) live in the project root alongside the build output.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+
+  <Step title="Install Dependencies">
+    Install all npm dependencies. Webmaster's production dependencies include React 18, React Router v6, Framer Motion, and Tailwind CSS.
+
+    <CodeGroup>
+
+    ```bash npm
+    npm install
+    ```
+
+    ```bash yarn
+    yarn install
+    ```
+
+    ```bash pnpm
+    pnpm install
+    ```
+
+    </CodeGroup>
+
+    <Tip>
+      If you see peer dependency warnings related to React 18 and Framer Motion, you can safely ignore them — Framer Motion fully supports React 18's concurrent rendering model.
+    </Tip>
+  </Step>
+
+  <Step title="Start the Development Server">
+    Launch the Vite dev server. Vite performs instant cold starts and serves the app with hot module replacement (HMR):
 
     ```bash
-    your-cli init
+    npm run dev
     ```
+
+    Vite will output something like:
+
+    ```
+      VITE v5.x.x  ready in 312 ms
+
+      ➜  Local:   http://localhost:5173/
+      ➜  Network: use --host to expose
+    ```
+
+    Open [http://localhost:5173](http://localhost:5173) in your browser. You'll be greeted by:
+
+    - A **teal background** (`#008080`) with the subtle turquoise crosshatch grid pattern
+    - A **rainbow `~*~ WELCOME ~*~` heading** rendered in Pacifico, animated with the `rainbow-bg` keyframe
+    - A **sticky pixel navigation bar** (`RetroNav`) at the top with links styled in VT323 font
+    - A **`MarqueeStrip`** scrolling lemon-yellow text across a black band bordered in hot-pink
+    - A **sparkle cursor** — move your mouse and `✦` glyphs burst outward in pink, turquoise, and lemon
+    - A **`VisitorCounter`** LED display that ticks up from `001336` after 1.5 seconds
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+
+  <Step title="Build for Production">
+    Compile the app into optimised static files:
 
     ```bash
-    your-cli start
+    npm run build
     ```
+
+    Vite bundles everything into the `dist/` directory:
+
+    ```
+    dist/
+    ├── index.html
+    ├── assets/
+    │   ├── main-[hash].js    # Bundled React app
+    │   ├── main-[hash].css   # Tailwind + custom CSS
+    │   └── jsx-runtime.js
+    └── components/
+        └── *.js              # Pre-loaded ES module components
+    ```
+
+    The output is fully static — no Node.js server is required to host it. Drop the `dist/` folder contents onto any static host (GitHub Pages, Netlify, Vercel, or an S3 bucket).
   </Step>
+
+  <Step title="Preview the Production Build">
+    Before deploying, verify the production build locally using Vite's built-in preview server:
+
+    ```bash
+    npm run preview
+    ```
+
+    The preview server starts at [http://localhost:4173](http://localhost:4173) and serves the files from `dist/` exactly as they will appear in production — including the client-side routing behaviour and all static asset paths.
+  </Step>
+
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## Navigating the App
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+Once the dev server is running, all nine routes are available:
+
+| Path | Page |
+|---|---|
+| `/` | Home — welcome banner, visitor counter, webring badges |
+| `/about` | About — personal bio section |
+| `/skills` | Skills — technology stack display |
+| `/projects` | Projects — portfolio project cards |
+| `/work` | Work — professional experience |
+| `/casestudies` | Case Studies — detailed project writeups |
+| `/blog` | Blog — article listing |
+| `/contact` | Contact — contact form |
+| `/testimonials` | Testimonials — social proof section |
+
+Every route change is animated via the `PageTransition` component, which wraps Framer Motion's `AnimatePresence` around each page to produce a smooth fade-and-slide entrance.
+
+<Tip>
+  Look for the **"Best viewed at 800×600"** easter egg in the site footer — a nod to the era when web designers included browser and resolution recommendations on every page. Resize your browser window to a narrow viewport to find it.
 </Tip>
+
+## Troubleshooting
+
+<Warning>
+  If the sparkle cursor effect does not appear, check whether your OS or browser has **"Reduce motion"** enabled in accessibility settings. `SparkleCursor` reads the `prefers-reduced-motion` media query and disables all particle effects when it is set to `reduce`.
+</Warning>
+
+If port 5173 is already in use, Vite will automatically try the next available port (5174, 5175, etc.) and print the actual URL in the terminal output.

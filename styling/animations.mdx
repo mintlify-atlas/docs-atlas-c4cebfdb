@@ -1,0 +1,324 @@
+---
+title: "Retro CSS Animations and Keyframes in Webmaster"
+sidebarTitle: "Animations"
+description: "Reference for Webmaster's six custom CSS keyframe animations: marquee, blink, bob, rainbow-bg, border-dance, and the Framer Motion page transitions."
+---
+
+Webmaster's motion design draws from two complementary systems: hand-written CSS `@keyframes` animations (registered as Tailwind-compatible utility classes) for the classic retro effects, and Framer Motion for smooth page-level transitions. The custom keyframes are deliberately over-the-top — scrolling marquees, blinking cursors, floating badges, and cycling rainbow text — which is exactly appropriate for a Y2K-aesthetic portfolio. All six custom animations respect `prefers-reduced-motion` and are disabled entirely for users who need them to be.
+
+---
+
+## Custom CSS Keyframe Animations
+
+All six custom `@keyframes` are defined in `assets/main.css`. Five of them are exposed as utility classes that can be dropped directly onto any JSX element.
+
+### `animate-marquee` — Infinite Scrolling Ticker
+
+The marquee animation scrolls text horizontally from right to left, looping continuously. It's the CSS equivalent of the `<marquee>` HTML element that defined the early web.
+
+The `marquee` keyframe translates the element from `100%` (off-screen right) to `-100%` (off-screen left):
+
+```css
+@keyframes marquee {
+  0%   { transform: translate(100%); }
+  100% { transform: translate(-100%); }
+}
+```
+
+The `.animate-marquee` class applies it at a 15-second linear cycle with `white-space: nowrap` to prevent line-wrapping as the text scrolls:
+
+```css
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: marquee 15s linear infinite;
+}
+```
+
+**Usage:**
+
+```jsx
+{/* Wrap the ticker in overflow-hidden to clip the off-screen text */}
+<div className="overflow-hidden bg-black text-yellow-400 py-1">
+  <span className="animate-marquee font-pixel text-lg">
+    ★ WELCOME TO MY PORTFOLIO ★ BUILT WITH REACT ★ EST. 2024 ★
+  </span>
+</div>
+```
+
+<Tip>
+Use `overflow-hidden` on the parent container to clip the text as it enters and exits. Without it, the scrolling element will expand the page width.
+</Tip>
+
+---
+
+### `animate-blink` — 1-Second Opacity Toggle
+
+The blink animation cuts between fully visible and fully invisible on a hard 50% boundary — no fade, no easing. This replicates the `<blink>` tag behavior and the blinking cursor on old terminals.
+
+```css
+@keyframes blink {
+  0%,  49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+```
+
+```css
+.animate-blink {
+  animation: blink 1s step-start infinite;
+}
+```
+
+The `step-start` timing function ensures the transition is instantaneous — the opacity jumps, never interpolates. The result is a clean, binary flash at exactly 1Hz.
+
+**Usage:**
+
+```jsx
+{/* Blinking cursor after terminal text */}
+<span className="font-pixel text-green-400 text-xl">
+  C:\&gt; <span className="animate-blink">█</span>
+</span>
+
+{/* Attention-grabbing label */}
+<span className="animate-blink text-red-500 font-bold text-xs uppercase">
+  NEW
+</span>
+```
+
+---
+
+### `animate-bob` — Floating Badge with Rotation
+
+The bob animation creates a gentle floating effect combined with a rocking rotation, making elements look like they're drifting in zero gravity. It's used on floating badges and decorative stickers.
+
+```css
+@keyframes bob {
+  0%,  100% { transform: translateY(0)    rotate(-5deg); }
+  50%        { transform: translateY(-5px) rotate(5deg);  }
+}
+```
+
+```css
+.animate-bob {
+  animation: bob 2s ease-in-out infinite;
+}
+```
+
+The element moves `5px` upward at the midpoint while rocking from `−5°` to `+5°`, creating a pendulum-like drift. The `ease-in-out` timing gives it a natural, organic feel rather than a mechanical bounce.
+
+**Usage:**
+
+```jsx
+{/* Floating badge sticker */}
+<div className="animate-bob absolute -top-3 -right-2 bg-hotpink text-white font-pixel text-xs px-2 py-1 rounded-full">
+  ★ NEW
+</div>
+
+{/* Decorative floating emoji */}
+<span className="animate-bob inline-block text-3xl">🌟</span>
+```
+
+---
+
+### `rainbow-text` — Cycling Rainbow Gradient Text
+
+Rather than a separate `animate-*` class, the rainbow effect is bundled entirely inside `.rainbow-text`. It works by applying a 200%-wide rainbow `linear-gradient` to the element's background, clipping that background to the text shape, and then animating the `background-position` across the gradient.
+
+```css
+@keyframes rainbow-bg {
+  0%   { background-position: 0%   center; }
+  100% { background-position: 200% center; }
+}
+```
+
+```css
+.rainbow-text {
+  background: linear-gradient(
+    to right,
+    red, orange, #ff0, green, #00f, indigo, violet
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: rainbow-bg 5s linear infinite;
+  background-size: 200% auto;
+}
+```
+
+The gradient is rendered at double width (`200% auto`) so that at any moment a full rainbow is visible. As `background-position` shifts from `0%` to `200%`, the entire spectrum slides left across the text over 5 seconds before looping seamlessly.
+
+**Usage:**
+
+```jsx
+<h1 className="rainbow-text text-5xl font-bold">
+  Welcome to Webmaster!
+</h1>
+
+<span className="rainbow-text font-pixel text-2xl">
+  PLAYER ONE
+</span>
+```
+
+---
+
+### `marching-ants` — Animated Selection Border
+
+The marching-ants effect animates four background-gradient "stripes" that together form the perimeter of the element — exactly like a selection outline in MS Paint. The `border-dance` keyframe advances each stripe by one dash segment (15px) per second.
+
+```css
+@keyframes border-dance {
+  0% {
+    background-position:
+      0px 0px,
+      100% 100%,
+      0px 100%,
+      100% 0px;
+  }
+  100% {
+    background-position:
+      15px 0px,
+      calc(100% - 15px) 100%,
+      0px calc(100% - 15px),
+      100% 15px;
+  }
+}
+```
+
+```css
+.marching-ants {
+  background:
+    linear-gradient(90deg, #000 50%, transparent 50%),
+    linear-gradient(90deg, #000 50%, transparent 50%),
+    linear-gradient(0deg,  #000 50%, transparent 50%),
+    linear-gradient(0deg,  #000 50%, transparent 50%);
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-size:   15px 2px, 15px 2px, 2px 15px, 2px 15px;
+  background-position:
+    0px 0px,
+    100% 100%,
+    0px 100%,
+    100% 0px;
+  padding: 10px;
+  animation: border-dance 1s infinite linear;
+}
+```
+
+**Usage:**
+
+```jsx
+{/* Selected project card */}
+<div className="marching-ants inline-block bg-white">
+  <p className="font-bold">Selected: Portfolio v3</p>
+</div>
+
+{/* Highlighted image frame */}
+<div className="marching-ants">
+  <img src="/project-screenshot.png" alt="Active project" />
+</div>
+```
+
+---
+
+## Tailwind Built-In Animations
+
+In addition to the custom keyframes, Webmaster uses three standard Tailwind animation utilities:
+
+<CardGroup cols={3}>
+  <Card title="animate-bounce" icon="arrow-up-arrow-down">
+    Vertical bounce — `translateY(-25%)` at 0%/100% with cubic-bezier easing. 1-second infinite cycle. Used on scroll-down indicators and interactive hints.
+
+    ```css
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(-25%);
+        animation-timing-function: cubic-bezier(.8,0,1,1);
+      }
+      50% {
+        transform: none;
+        animation-timing-function: cubic-bezier(0,0,.2,1);
+      }
+    }
+    ```
+  </Card>
+  <Card title="animate-ping" icon="signal">
+    Scales from `1` to `2` while fading to opacity `0`. Used for notification dot pulsing rings and live-indicator badges.
+
+    ```css
+    @keyframes ping {
+      75%, 100% {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+    ```
+  </Card>
+  <Card title="animate-pulse" icon="heart-pulse">
+    Fades opacity to `0.5` at 50% and back, on a 2-second cubic-bezier cycle. Used for skeleton loaders and subtle hover state hints.
+
+    ```css
+    @keyframes pulse {
+      50% { opacity: .5; }
+    }
+    ```
+  </Card>
+</CardGroup>
+
+---
+
+## Accessibility: `prefers-reduced-motion`
+
+Every custom animation in the project is disabled when the user's operating system has reduced motion enabled. This block at the end of `main.css` covers all five custom utility classes and the scanlines pseudo-element:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-blink,
+  .animate-bob,
+  .rainbow-text,
+  .marching-ants {
+    animation: none !important;
+  }
+
+  .scanlines::before {
+    display: none;
+  }
+}
+```
+
+<Warning>
+The Tailwind built-in animations (`animate-bounce`, `animate-ping`, `animate-pulse`) are **not** included in this override — Tailwind's own `motion-safe:` / `motion-reduce:` variants should be used to control them per-component if needed. Add `motion-reduce:animate-none` to any Tailwind animation class to opt it into the reduced-motion system.
+</Warning>
+
+This means that for users with `prefers-reduced-motion: reduce` set:
+
+- The marquee ticker stops and renders as static text.
+- Blinking elements remain at full opacity.
+- Floating badges sit still.
+- Rainbow text renders as a static gradient (transparent text on the gradient background at its initial position — consider pairing with a fallback text color via a separate class in reduced-motion contexts).
+- Marching-ant borders become static dashed outlines at their initial `background-position`.
+- The scanlines overlay is completely removed.
+
+---
+
+## Framer Motion Page Transitions
+
+Beyond the CSS animations, page-level transitions are handled by a `PageTransition` component that wraps route content using Framer Motion's `AnimatePresence` API. This provides smooth enter/exit animations when navigating between pages — something CSS `@keyframes` alone cannot coordinate across React route unmounts.
+
+<Note>
+For full documentation of the `PageTransition` component — including the `initial`, `animate`, and `exit` props it passes to Framer Motion's `motion.div` — see the [PageTransition component reference](/components/page-transition).
+</Note>
+
+---
+
+## Animation Quick Reference
+
+| Class | Keyframe | Duration | Trigger | Reduced-Motion Safe |
+|---|---|---|---|---|
+| `animate-marquee` | `marquee` | 15s linear | Auto | ✅ Disabled |
+| `animate-blink` | `blink` | 1s step-start | Auto | ✅ Disabled |
+| `animate-bob` | `bob` | 2s ease-in-out | Auto | ✅ Disabled |
+| `rainbow-text` | `rainbow-bg` | 5s linear | Auto | ✅ Disabled |
+| `marching-ants` | `border-dance` | 1s linear | Auto | ✅ Disabled |
+| `animate-bounce` | `bounce` (Tailwind) | 1s | Auto | ⚠️ Manual opt-in |
+| `animate-ping` | `ping` (Tailwind) | 1s | Auto | ⚠️ Manual opt-in |
+| `animate-pulse` | `pulse` (Tailwind) | 2s | Auto | ⚠️ Manual opt-in |

@@ -1,0 +1,115 @@
+---
+title: "PageTransition: Framer Motion Page Animations"
+sidebarTitle: "PageTransition"
+description: "PageTransition wraps route content with Framer Motion fade-and-slide animations — 300ms easeInOut on enter and exit, using AnimatePresence in wait mode."
+---
+
+`PageTransition` is a thin wrapper around Framer Motion's `motion.div` that gives every route change a smooth fade-and-slide feel. When a new page enters, it slides up from 20px below and fades in. When a page exits, it slides up a further 20px and fades out. The `AnimatePresence mode="wait"` at the router level ensures the outgoing page finishes its exit animation before the incoming page begins — preventing any visual overlap between routes.
+
+## Props
+
+<ParamField body="children" type="React.ReactNode" required>
+  The page component to animate. Wrap each route's element with `<PageTransition>` so every route gets its own `motion.div` lifecycle.
+</ParamField>
+
+## Animation Values
+
+The component passes the following variant objects directly to `motion.div`:
+
+| Prop | Value | Description |
+|---|---|---|
+| `initial` | `{ opacity: 0, y: 20 }` | Page starts invisible, offset 20px below its final position |
+| `animate` | `{ opacity: 1, y: 0 }` | Page fades in and slides up to its natural position |
+| `exit` | `{ opacity: 0, y: -20 }` | Page fades out while continuing to slide upward by 20px |
+| `transition` | `{ duration: 0.3, ease: 'easeInOut' }` | 300ms cubic-ease on both enter and exit |
+
+The symmetry between `y: 20` on enter and `y: -20` on exit creates a continuous upward momentum — each page flows naturally out of the one before it.
+
+## Core Implementation
+
+```jsx
+import { motion } from 'framer-motion';
+
+export function PageTransition({ children }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3, ease: 'easeInOut' }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+```
+
+## Router-Level Setup
+
+`AnimatePresence` must wrap the `<Routes>` block, not individual components. Setting `mode="wait"` tells Framer Motion to complete the current page's `exit` animation before mounting the next page's `initial` state — without this, both pages would be in the DOM simultaneously and the transitions would overlap.
+
+The `key={location.pathname}` on `<Routes>` is **essential**: it signals to `AnimatePresence` that the child tree has changed when the URL changes, triggering the exit/enter lifecycle.
+
+```jsx
+import { AnimatePresence } from 'framer-motion';
+import { Routes, Route, useLocation } from 'react-router-dom';
+import { PageTransition } from './components/PageTransition';
+import { Home } from './pages/Home';
+import { About } from './pages/About';
+import { Projects } from './pages/Projects';
+import { Contact } from './pages/Contact';
+
+export function App() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/"        element={<PageTransition><Home /></PageTransition>} />
+        <Route path="/about"   element={<PageTransition><About /></PageTransition>} />
+        <Route path="/projects" element={<PageTransition><Projects /></PageTransition>} />
+        <Route path="/contact" element={<PageTransition><Contact /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+```
+
+<Note>
+  The `location` prop on `<Routes>` and the matching `key` are both required. If you omit `key={location.pathname}`, React will reuse the same `Routes` element between navigations and `AnimatePresence` will never see a child unmount — meaning exit animations will never fire.
+</Note>
+
+## Dependency
+
+`PageTransition` requires Framer Motion, which is already installed in the Webmaster project:
+
+```json
+{
+  "dependencies": {
+    "framer-motion": "^11.x"
+  }
+}
+```
+
+No additional configuration is needed. Framer Motion's `motion` components and `AnimatePresence` are imported directly from the `framer-motion` package.
+
+## How `AnimatePresence mode="wait"` Works
+
+<Steps>
+  <Step title="Navigation triggered">
+    The user clicks a nav link. React Router updates `location.pathname`.
+  </Step>
+  <Step title="Key change detected">
+    The `key={location.pathname}` on `<Routes>` changes, so React unmounts the old `Routes` tree and mounts a new one. `AnimatePresence` intercepts the unmount.
+  </Step>
+  <Step title="Exit animation plays">
+    The outgoing page's `motion.div` animates to `{ opacity: 0, y: -20 }` over 300ms. The element stays in the DOM until the animation completes.
+  </Step>
+  <Step title="New page mounts">
+    Once the exit animation is done, `AnimatePresence` allows the old element to fully unmount, then the new page mounts and animates from `{ opacity: 0, y: 20 }` to `{ opacity: 1, y: 0 }`.
+  </Step>
+</Steps>
+
+<Tip>
+  To adjust the feel of transitions, tweak the `duration` (currently `0.3s`) or swap `ease: 'easeInOut'` for another Framer Motion easing like `'anticipate'` or a custom cubic-bezier array such as `[0.4, 0, 0.2, 1]`.
+</Tip>

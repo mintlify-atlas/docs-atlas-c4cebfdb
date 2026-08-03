@@ -1,0 +1,244 @@
+---
+title: "Retro Design System: Colors, Fonts, and Visual Language"
+sidebarTitle: "Design System"
+description: "Webmaster's retro design system: a six-color Y2K palette, three Google Fonts, Windows 98 bevel borders, and a teal grid body background."
+---
+
+Webmaster is deliberately styled after the aesthetic of the late 1990s and early 2000s web — think Windows 98 dialog boxes, GeoCities pages, scrolling marquee banners, and a desktop teal wallpaper you could set in Control Panel. Every design decision in `main.css` reinforces that nostalgia: a saturated six-color palette defined as CSS custom properties, three Google Fonts that evoke the era's eccentricity, raised bevel borders straight out of the Windows shell, and a tiled SVG grid on the body that mimics classic desktop wallpaper.
+
+## Y2K Visual Philosophy
+
+The design borrows the visual grammar of the Windows 98 / early-web era:
+
+- **Teal everywhere.** The signature color of the Windows 98 default desktop — `#008080` — is the body background, instantly triggering the right nostalgic register.
+- **Raised chrome.** Buttons and containers use light borders on top-left and dark borders on bottom-right to simulate 3D depth without any actual shadow, exactly as Win32 controls worked.
+- **Unabashed color.** Hot pink, lemon yellow, and turquoise are used without apology — straight from the palette of early personal-homepage builders.
+- **Personality fonts.** Comic Sans energy (via Comic Neue), terminal aesthetics (VT323), and a cursive signature feel (Pacifico) cover all the bases of early-web typography.
+- **Motion as decoration.** Marquees, blinking text, rainbow gradients, and marching-ant selection borders are all present — because on the early web, if something *could* move, it *did*.
+
+---
+
+## Color Palette
+
+All six brand colors are defined as CSS custom properties on `:root` in `main.css`. Reference them anywhere in the project with `var(--color-name)`.
+
+```css
+:root {
+  --color-teal:      #008080;
+  --color-turquoise: #00CED1;
+  --color-cream:     #FFFFF0;
+  --color-hotpink:   #FF69B4;
+  --color-lemon:     #FFFACD;
+  --color-silver:    #C0C0C0;
+}
+```
+
+<CardGroup cols={3}>
+  <Card title="Teal — #008080" icon="square">
+    `var(--color-teal)`
+
+    The body background color. Classic Windows 98 desktop teal. Used as the canvas that every component sits against.
+  </Card>
+  <Card title="Turquoise — #00CED1" icon="square">
+    `var(--color-turquoise)`
+
+    Brighter, lighter teal. Used in the SVG grid overlay, `.retro-dotted` borders, and as a Tailwind text/shadow accent color.
+  </Card>
+  <Card title="Cream — #FFFFF0" icon="square">
+    `var(--color-cream)`
+
+    Warm off-white, softer than pure white. Good for content card backgrounds where full white would feel too stark.
+  </Card>
+  <Card title="Hot Pink — #FF69B4" icon="square">
+    `var(--color-hotpink)`
+
+    The loudest accent in the palette. Used in `.retro-dashed` borders, drop-shadow utilities, and as a highlight color throughout.
+  </Card>
+  <Card title="Lemon — #FFFACD" icon="square">
+    `var(--color-lemon)`
+
+    Pale yellow, reminiscent of early-web sticky-note backgrounds. A softer alternative to Tailwind's `yellow-100`.
+  </Card>
+  <Card title="Silver — #C0C0C0" icon="square">
+    `var(--color-silver)`
+
+    The default background of Win32 dialog boxes and buttons. Used as the base fill for `.bevel-container` and `.bevel-button`.
+  </Card>
+</CardGroup>
+
+### Using CSS Variables in JSX
+
+Pass variables directly into Tailwind's arbitrary-value syntax or into inline `style` props:
+
+```jsx
+{/* Arbitrary value in Tailwind class */}
+<div className="border-[var(--color-hotpink)]">...</div>
+
+{/* Inline style */}
+<p style={{ color: "var(--color-turquoise)" }}>Dark Turquoise text</p>
+
+{/* Inside a CSS module or className string */}
+<div style={{ backgroundColor: "var(--color-lemon)", border: "2px dashed var(--color-hotpink)" }}>
+  Lemon card with hot-pink dashed border
+</div>
+```
+
+---
+
+## Typography
+
+Three Google Fonts are loaded in a single `@import` at the top of `main.css`:
+
+```css
+@import "https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Pacifico&family=VT323&display=swap";
+```
+
+<CardGroup cols={3}>
+  <Card title="Pacifico — Headings" icon="text-size">
+    Applied globally to all heading elements (`h1`–`h6`) via:
+
+    ```css
+    h1, h2, h3, h4, h5, h6 {
+      font-family: Pacifico, cursive;
+    }
+    ```
+
+    Pacifico is a flowing, retro-script typeface that gives every page heading a handcrafted, almost diner-sign quality. No class needed — it's the default for all headings.
+  </Card>
+  <Card title="VT323 — Pixel / Terminal" icon="terminal">
+    Applied via the `.font-pixel` utility class:
+
+    ```css
+    .font-pixel {
+      font-family: VT323, monospace;
+    }
+    ```
+
+    VT323 is a bitmap-style font inspired by the DEC VT320 terminal. It gives any text an authentic 8-bit or command-line appearance. Pair it with `text-green-400` on a dark background for full terminal vibes.
+  </Card>
+  <Card title="Comic Neue — Casual / Fun" icon="face-smile">
+    Applied via the `.font-comic` utility class:
+
+    ```css
+    .font-comic {
+      font-family: "Comic Neue", cursive;
+    }
+    ```
+
+    Comic Neue is a polished revival of Comic Sans. It carries the casual, hand-drawn energy of the original while being more legible at smaller sizes. Loaded at weights 400 and 700.
+  </Card>
+</CardGroup>
+
+<Tip>
+The body font stack is **Verdana, Geneva, Tahoma, sans-serif** — the quintessential early-2000s sans-serif choices. Verdana was designed specifically for low-resolution screens and was nearly ubiquitous on personal websites in the era Webmaster references.
+</Tip>
+
+---
+
+## The Bevel Border System
+
+The Windows 98 UI achieved its 3D raised/sunken look entirely through border color tricks — no `box-shadow`, no `filter`. Light borders on top and left, dark borders on bottom and right made a surface appear to protrude; the reverse made it appear inset. Webmaster replicates this exactly.
+
+### Raised (`.bevel-container`)
+
+Light `#fff` borders on the top and left edges, dark `#808080` borders on the bottom and right — the element appears to press *outward* toward the viewer.
+
+```css
+.bevel-container {
+  background-color: var(--color-silver);
+  border-top:    3px solid #fff;
+  border-left:   3px solid #fff;
+  border-right:  3px solid #808080;
+  border-bottom: 3px solid #808080;
+}
+```
+
+### Sunken (`.bevel-container-inset`)
+
+Borders are inverted: dark on top/left, light on bottom/right. The element appears to be pressed *into* the page, like a recessed field or trough.
+
+```css
+.bevel-container-inset {
+  background-color: #fff;
+  border-top:    3px solid #808080;
+  border-left:   3px solid #808080;
+  border-right:  3px solid #fff;
+  border-bottom: 3px solid #fff;
+}
+```
+
+### Interactive Button (`.bevel-button`)
+
+Starts in the raised state. On `:active`, the borders flip to the sunken configuration and a `2px` padding offset is added to simulate the button physically moving inward when pressed — exactly as Win32 buttons behaved.
+
+```css
+.bevel-button {
+  background-color: var(--color-silver);
+  border-top:    3px solid #fff;
+  border-left:   3px solid #fff;
+  border-right:  3px solid #808080;
+  border-bottom: 3px solid #808080;
+  cursor: pointer;
+}
+
+.bevel-button:active {
+  border-top:    3px solid #808080;
+  border-left:   3px solid #808080;
+  border-right:  3px solid #fff;
+  border-bottom: 3px solid #fff;
+  padding-top:   2px;
+  padding-left:  2px;
+}
+```
+
+<Note>
+All three bevel classes use `#C0C0C0` (silver) or `#fff` as background fills. For richest results, apply them to elements that already have padding — the 3px border needs breathing room to read correctly as depth.
+</Note>
+
+---
+
+## Body Background
+
+The `<body>` is styled with two layers: a solid teal fill and a translucent SVG grid pattern on top.
+
+```css
+body {
+  background-color: var(--color-teal);
+  background-image: url("data:image/svg+xml,...");
+  color: #000;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  cursor: default;
+}
+```
+
+The SVG is an inline data URI containing a 40×40 px repeating grid drawn in turquoise (`#00CED1`) at 10% opacity (`fill-opacity="0.1"`). The result is a subtle crosshatch that adds texture to the teal background without competing with content — reminiscent of the graph-paper or tile wallpapers that shipped with Windows 98.
+
+The `cursor: default` rule restores the arrow cursor project-wide (overriding browser default pointer-on-links behavior where not explicitly set), reinforcing the desktop-application feel.
+
+---
+
+## Accessibility: Reduced Motion
+
+All custom CSS animations — `.animate-marquee`, `.animate-blink`, `.animate-bob`, `.rainbow-text`, `.marching-ants`, and the `.scanlines` pseudo-element — are disabled when the user's OS has `prefers-reduced-motion: reduce` set:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-blink,
+  .animate-bob,
+  .rainbow-text,
+  .marching-ants {
+    animation: none !important;
+  }
+
+  .scanlines::before {
+    display: none;
+  }
+}
+```
+
+<Warning>
+The `!important` flag is intentional here — it ensures the reduced-motion override beats any inline or component-level animation style. Do not remove it.
+</Warning>
+
+This means the retro motion effects are purely progressive enhancement: all content is fully readable and functional without them.

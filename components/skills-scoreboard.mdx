@@ -1,0 +1,201 @@
+---
+title: "Skills Scoreboard: Arcade High-Score Table Component"
+sidebarTitle: "Skills Scoreboard"
+description: "The Skills Scoreboard renders a 7-entry arcade-style high-score table with blinking headers, animated rank indicators, and a coin-insert footer — used on the Skills page."
+---
+
+Long before LinkedIn endorsements, developers proved their worth by reaching the top of the leaderboard. The Skills Scoreboard translates that arcade-cabinet energy into a resume section: a full dark-room high-score table where every technology earns its rank by numeric score, the number-one entry blazes in cyan, and a pulsing prompt at the bottom reminds you this game isn't over yet. It lives at the `/skills` route and fills the entire page content area.
+
+## Visual Overview
+
+The component renders three distinct layers stacked vertically:
+
+1. **Page title** — `"MAD SKILLZ"` in `text-lemon` (bright yellow) with a hot-pink `drop-shadow`, on a black background inside a `border-4 border-hotpink` frame.
+2. **Arcade cabinet panel** — A `bg-black` block with `border-8 border-silver` and `bevel-container-inset` styling, containing the full high-score table with a CRT screen glass-sheen overlay (a semi-transparent white gradient across the top third).
+3. **Skill category cards** — A responsive 2×2 / 4-column grid of bevel-container icon cards beneath the cabinet.
+
+```
+┌──────────────────────────────────────────────┐
+│            ▌ MAD SKILLZ ▐                    │  ← text-lemon, bg-black, border-hotpink
+└──────────────────────────────────────────────┘
+┌══════════════════════════════════════════════╗
+║          HIGH SCORES   (animate-blink)       ║  ← text-red-500, font-pixel text-3xl
+╠══════════════════════════════════════════════╣
+║  RANK     SKILL          SCORE       NAME    ║  ← text-yellow-400, border-b-2
+╠══════════════════════════════════════════════╣
+║  1ST      REACT.JS ▲     999,990     PRO     ║  ← text-cyan-400 (1st only)
+║  2ND      TYPESCRIPT ▲   850,400     TSX     ║
+║  3RD      CSS/TAILWIND ▲ 742,100     CSS     ║
+║  4TH      NODE.JS        620,000     API     ║
+║  5TH      HTML5          555,555     WEB     ║
+║  6TH      SQL/DB         404,404     DBA     ║
+║  7TH      PHOTOSHOP      313,370     GFX     ║
+╠══════════════════════════════════════════════╣
+║     INSERT COIN TO CONTINUE... (pulse)       ║  ← text-green-400, font-pixel
+╚══════════════════════════════════════════════╝
+┌────────────┬────────────┬────────────┬───────────────┐
+│  🧠        │  🐛        │  ☕        │  💾           │
+│ Fast       │ Bug        │ Coffee     │ Always        │
+│ Learner    │ Squasher   │ Powered    │ Backs Up      │
+└────────────┴────────────┴────────────┴───────────────┘
+```
+
+## Skills Data Array
+
+The seven entries are hardcoded in the `ae` array inside `assets/main.js`. Each object carries four fields that map directly to the four table columns:
+
+```js
+const ae = [
+  { rank: "1ST", name: "REACT.JS",    score: "999,990", initial: "PRO" },
+  { rank: "2ND", name: "TYPESCRIPT",  score: "850,400", initial: "TSX" },
+  { rank: "3RD", name: "CSS/TAILWIND",score: "742,100", initial: "CSS" },
+  { rank: "4TH", name: "NODE.JS",     score: "620,000", initial: "API" },
+  { rank: "5TH", name: "HTML5",       score: "555,555", initial: "WEB" },
+  { rank: "6TH", name: "SQL/DB",      score: "404,404", initial: "DBA" },
+  { rank: "7TH", name: "PHOTOSHOP",   score: "313,370", initial: "GFX" },
+];
+```
+
+<Note>
+  The scores are purely cosmetic — they exist to complete the arcade leaderboard fiction. SQL/DB's score of `404,404` and HTML5's palindrome `555,555` are intentional Easter eggs.
+</Note>
+
+## Table Columns
+
+| Column | Source field | Width class | Notes |
+|---|---|---|---|
+| `RANK` | `rank` | `w-16` | Ordinal string: `"1ST"` – `"7TH"` |
+| `SKILL` | `name` | `flex-1 text-center` | Centered; top-3 entries append an animated `▲` indicator |
+| `SCORE` | `score` | `w-32 text-right` | Pre-formatted comma string |
+| `NAME` | `initial` | `w-16 text-right` | 3-char arcade initials |
+
+## Visual Details
+
+### Header: "HIGH SCORES"
+
+```jsx
+<h3 className="font-pixel text-3xl text-red-500 animate-blink">
+  HIGH SCORES
+</h3>
+```
+
+The `animate-blink` class produces the classic arcade attract-mode flash — the heading cuts in and out on a CSS animation cycle defined in the project's Tailwind config.
+
+### Top-3 Rank Indicator
+
+Entries at index `0`, `1`, and `2` (1ST, 2ND, 3RD) render an upward-arrow bounce indicator alongside the skill name:
+
+```jsx
+{index < 3 && (
+  <span className="text-xs text-yellow-400 animate-bounce">▲</span>
+)}
+```
+
+The `▲` pulses up and down via Tailwind's built-in `animate-bounce`, calling attention to the podium positions.
+
+### First-Place Highlight
+
+The entire first row receives `text-cyan-400` applied conditionally on `index === 0`:
+
+```jsx
+<div className={`flex justify-between hover:bg-white/10 p-1 transition-colors ${
+  index === 0 ? "text-cyan-400" : ""
+}`}>
+```
+
+All other rows render in default `text-white`. Every row also supports a subtle `hover:bg-white/10` reveal — mouse-over any row to see a dim CRT-phosphor glow.
+
+### CRT Glass Sheen
+
+A non-interactive pseudo-layer sits inside the cabinet panel, replicating the curved-glass highlight of a cathode-ray tube monitor:
+
+```jsx
+<div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-white/10 to-transparent pointer-events-none" />
+```
+
+### Footer: "INSERT COIN TO CONTINUE…"
+
+```jsx
+<div className="mt-12 text-center font-pixel text-green-400 text-xl animate-pulse">
+  INSERT COIN TO CONTINUE...
+</div>
+```
+
+The `animate-pulse` class fades the text in and out on a 2-second cycle — the universal signal from every arcade machine ever made.
+
+## Skill Category Cards
+
+Below the cabinet, four equal-width cards sit in a responsive grid (`grid-cols-2 md:grid-cols-4`). Each uses a `bevel-container p-2 bg-silver` outer shell with a plain white inner cell:
+
+<CardGroup cols={4}>
+  <Card title="Fast Learner" icon="brain">
+    🧠 — Picks up new technologies before the docs are finished.
+  </Card>
+  <Card title="Bug Squasher" icon="bug">
+    🐛 — Finds the semicolon you forgot at 2 AM.
+  </Card>
+  <Card title="Coffee Powered" icon="coffee">
+    ☕ — Sustained entirely by hot beverages and deadline anxiety.
+  </Card>
+  <Card title="Always Backs Up" icon="floppy-disk">
+    💾 — Commits frequently. Has never lost work. Not once.
+  </Card>
+</CardGroup>
+
+```jsx
+<div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 text-center font-comic">
+  {[
+    { icon: "🧠", label: "Fast Learner"    },
+    { icon: "🐛", label: "Bug Squasher"    },
+    { icon: "☕", label: "Coffee Powered"  },
+    { icon: "💾", label: "Always Backs Up" },
+  ].map(({ icon, label }) => (
+    <div className="bevel-container p-2 bg-silver">
+      <div className="bg-white p-2">
+        <div className="text-3xl mb-1">{icon}</div>
+        <div className="font-bold">{label}</div>
+      </div>
+    </div>
+  ))}
+</div>
+```
+
+## Page Title Styling
+
+The `"MAD SKILLZ"` heading uses the retro lemon-drop treatment:
+
+```jsx
+<h2 className="text-5xl text-lemon drop-shadow-[3px_3px_0_#FF69B4] inline-block bg-black px-6 py-2 border-4 border-hotpink">
+  MAD SKILLZ
+</h2>
+```
+
+`text-lemon` and `border-hotpink` are custom Tailwind color utilities defined in the project's `tailwind.config.js`. `drop-shadow-[3px_3px_0_#FF69B4]` creates the thick hot-pink offset shadow characteristic of the site's Y2K display aesthetic.
+
+## Route Registration
+
+The Skills Scoreboard renders the entire `/skills` page — it is not a standalone droppable widget. It is registered in the router inside `assets/main.js`:
+
+```jsx
+<Route path="/skills" element={<Layout><SkillsScoreboard /></Layout>} />
+```
+
+<Note>
+  This is a **page-level component**, not a composable widget. It fills the full content area of the `<main>` element and is not designed to be embedded inside other pages or components.
+</Note>
+
+## Customizing Skills Data
+
+To edit the leaderboard, locate the `ae` array near the top of `assets/main.js` and modify the entries in place:
+
+```js
+// assets/main.js — find and edit this array
+const ae = [
+  { rank: "1ST", name: "YOUR_SKILL", score: "999,999", initial: "YOU" },
+  // ... remaining entries
+];
+```
+
+<Tip>
+  Keep `initial` values to exactly 3–4 characters — longer strings will overflow the fixed `w-16` column. Score strings should use comma-formatted numbers for the authentic arcade readout look.
+</Tip>

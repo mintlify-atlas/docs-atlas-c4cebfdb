@@ -1,0 +1,258 @@
+---
+title: "Webmaster Project Structure and File Layout"
+sidebarTitle: "Project Structure"
+description: "An overview of the Webmaster repository layout, including the components directory, page routing in main.js, CSS architecture, and the static build output."
+---
+
+The Webmaster repository is a pre-compiled static site. Opening the project root, you'll find no `package.json` or `node_modules` — Vite has already run, producing a self-contained set of HTML, JavaScript, and CSS files that can be served directly from any static host. Understanding how these files relate to each other makes it easy to locate the code behind any visual element or route.
+
+## File Tree
+
+```
+webmaster/
+├── index.html              # SPA entry point — loads assets/main.js + main.css
+├── .nojekyll               # Disables Jekyll processing on GitHub Pages
+├── assets/
+│   ├── main.js             # Bundled app: React + all pages + routing logic
+│   ├── jsx-runtime.js      # React JSX runtime (pre-loaded via modulepreload)
+│   └── main.css            # All Tailwind utilities + custom retro CSS
+├── components/
+│   ├── Button88x31.js      # 88×31 pixel web badge component
+│   ├── MarqueeStrip.js     # Horizontally scrolling ticker strip
+│   ├── PageTransition.js   # Framer Motion route transition wrapper
+│   ├── RetroNav.js         # Sticky top navigation bar
+│   ├── SparkleCursor.js    # Mouse-follow sparkle particle effect
+│   ├── UnderConstructionSign.js  # Animated "under construction" banner
+│   ├── VisitorCounter.js   # LED-style incrementing visitor counter
+│   └── WebringBadges.js    # Row of retro 88×31 webring badges
+└── pages/
+    ├── About.html
+    ├── Blog.html
+    ├── CaseStudies.html
+    ├── Contact.html
+    ├── Projects.html
+    ├── Skills.html
+    ├── Testimonials.html
+    └── Work.html
+```
+
+<Note>
+  This repository contains the **pre-built static output** of a Vite project — there is no `package.json` in the root. All source compilation has already taken place. The JavaScript files in `components/` are Vite-compiled ES modules, not raw JSX source files. To modify and rebuild the app, you would need access to the original Vite development workspace with its `src/` directory and `package.json`.
+</Note>
+
+## `index.html` — The SPA Entry Point
+
+The entire application boots from a single HTML file. It contains nothing but a `<div id="root">` mount target and a set of `<script>` and `<link>` tags:
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webmaster</title>
+    <script type="module" crossorigin src="./assets/main.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/jsx-runtime.js">
+    <link rel="modulepreload" crossorigin href="./components/RetroNav.js">
+    <link rel="modulepreload" crossorigin href="./components/SparkleCursor.js">
+    <link rel="modulepreload" crossorigin href="./components/PageTransition.js">
+    <link rel="modulepreload" crossorigin href="./components/MarqueeStrip.js">
+    <link rel="modulepreload" crossorigin href="./components/VisitorCounter.js">
+    <link rel="modulepreload" crossorigin href="./components/WebringBadges.js">
+    <link rel="modulepreload" crossorigin href="./components/UnderConstructionSign.js">
+    <link rel="modulepreload" crossorigin href="./components/Button88x31.js">
+    <link rel="stylesheet" crossorigin href="./assets/main.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+```
+
+All eight component modules are declared as `<link rel="modulepreload">` entries, which instructs the browser to fetch and parse them in parallel with `main.js` before they are needed — eliminating waterfall loading delays for the initial render.
+
+React mounts into `<div id="root">` and takes over all DOM rendering from that point forward. No other HTML content exists in the file.
+
+## `assets/` — Bundled Application
+
+The `assets/` directory contains three files that form the complete application:
+
+### `assets/main.js`
+
+This is the heart of the application — a single compiled JavaScript bundle produced by Vite that contains:
+
+- **React 18 and ReactDOM** — the full React runtime and renderer
+- **React Router v6** — `BrowserRouter`, `Routes`, and `Route` components
+- **Framer Motion** — the full animation library (version 11, as identified by the `version: "11.18.2"` string in the bundle)
+- **All nine page components** — Home, About, Skills, Projects, Work, CaseStudies, Blog, Contact, and Testimonials
+- **The `App` component** — containing the React Router v6 `<Routes>` tree with nine `<Route>` elements
+- **React Scheduler** — for concurrent rendering
+
+The routing structure inside `main.js` follows this pattern:
+
+```jsx
+// Inside App component in assets/main.js
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+function App() {
+  return (
+    <BrowserRouter>
+      <RetroNav />
+      <SparkleCursor />
+      <Routes>
+        <Route path="/"            element={<PageTransition><Home /></PageTransition>} />
+        <Route path="/about"       element={<PageTransition><About /></PageTransition>} />
+        <Route path="/skills"      element={<PageTransition><Skills /></PageTransition>} />
+        <Route path="/projects"    element={<PageTransition><Projects /></PageTransition>} />
+        <Route path="/work"        element={<PageTransition><Work /></PageTransition>} />
+        <Route path="/casestudies" element={<PageTransition><CaseStudies /></PageTransition>} />
+        <Route path="/blog"        element={<PageTransition><Blog /></PageTransition>} />
+        <Route path="/contact"     element={<PageTransition><Contact /></PageTransition>} />
+        <Route path="/testimonials" element={<PageTransition><Testimonials /></PageTransition>} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+```
+
+### `assets/jsx-runtime.js`
+
+The React JSX transform runtime. When Vite compiles JSX, it replaces `React.createElement(...)` calls with imports from this module. It is declared as a `modulepreload` in `index.html` so it is available before any component code executes.
+
+### `assets/main.css`
+
+A single compiled stylesheet containing the full Tailwind CSS utility output plus all custom retro styles. Key sections include:
+
+**CSS custom properties (design tokens):**
+```css
+:root {
+  --color-teal:      #008080;
+  --color-turquoise: #00CED1;
+  --color-cream:     #FFFFF0;
+  --color-hotpink:   #FF69B4;
+  --color-lemon:     #FFFACD;
+  --color-silver:    #C0C0C0;
+}
+```
+
+**Body background** — teal with an inline SVG turquoise grid pattern:
+```css
+body {
+  background-color: var(--color-teal);
+  background-image: url("data:image/svg+xml,..."); /* turquoise 40×40 grid */
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+```
+
+**Heading font** — Pacifico applied globally:
+```css
+h1, h2, h3, h4, h5, h6 {
+  font-family: Pacifico, cursive;
+}
+```
+
+**Custom utility classes:**
+
+| Class | Effect |
+|---|---|
+| `.bevel-container` | Raised Win98-style 3D border |
+| `.bevel-container-inset` | Recessed/inset 3D border (used by `VisitorCounter`) |
+| `.bevel-button` | Clickable raised button surface |
+| `.retro-dashed` | Dashed border in hotpink |
+| `.retro-dotted` | Dotted border decoration |
+| `.rainbow-text` | CSS `background-clip: text` rainbow gradient |
+| `.marching-ants` | Animated dashed border that appears to march |
+| `.scanlines` | Horizontal scanline overlay pseudo-element |
+
+**Custom keyframe animations:**
+
+| Animation | Used by |
+|---|---|
+| `marquee` | `MarqueeStrip` — drives the infinite horizontal scroll |
+| `blink` | Cursor and notification elements |
+| `bob` | Floating/bobbing UI elements |
+| `rainbow-bg` | Background hue-shift on hero elements |
+| `border-dance` | `marching-ants` border animation |
+
+## `components/` — ES Module Components
+
+Each file in `components/` is a Vite-compiled ES module that exports exactly one React component. They import from `../assets/jsx-runtime.js` for JSX support. All eight components are:
+
+<AccordionGroup>
+
+  <Accordion title="RetroNav.js — Sticky Navigation Bar">
+    The application's primary navigation. Renders a sticky top bar styled in silver/teal with pixel-font links to all nine routes. Uses React Router's `<Link>` for client-side navigation without full page reloads.
+  </Accordion>
+
+  <Accordion title="SparkleCursor.js — Sparkle Particle Effect">
+    Tracks `mousemove` events on `window` and spawns short-lived `✦` glyphs at the cursor position. Each sparkle is assigned a random size (5–15px), one of four colors (`#FF69B4`, `#00CED1`, `#FFFACD`, `#FFFFFF`), and a random rotation. Particles fade out via CSS `opacity` transition after 800ms. Respects `prefers-reduced-motion`:
+
+    ```js
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    ```
+
+    The component renders into a `pointer-events: none` fixed overlay at `z-index: 9999`.
+  </Accordion>
+
+  <Accordion title="MarqueeStrip.js — Scrolling Ticker">
+    Accepts a `text` prop and an optional `className`. Renders the text twice inside an `animate-marquee` container to create a seamless infinite scroll. Styled with a black background, lemon (`#FFFACD`) VT323 pixel font text, and a hot-pink top/bottom border:
+
+    ```js
+    // MarqueeStrip accepts: { text: string, className?: string }
+    function MarqueeStrip({ text, className = '' }) { ... }
+    ```
+  </Accordion>
+
+  <Accordion title="PageTransition.js — Route Animation Wrapper">
+    Wraps page content with Framer Motion's `AnimatePresence` to animate entries and exits on route changes. Every page component is wrapped in `<PageTransition>` inside the router, producing a consistent fade-and-translate transition between all nine routes.
+  </Accordion>
+
+  <Accordion title="VisitorCounter.js — LED Visitor Display">
+    Initialises a `useState` counter at `1336`, then increments it by 1 after a 1500ms `setTimeout` on mount. Renders each digit of the zero-padded six-digit number as a separate div styled to look like a red-on-black seven-segment LED display with `text-shadow: 0 0 5px rgba(255,0,0,0.5)`. Uses the `.bevel-container-inset` class for the surrounding panel.
+  </Accordion>
+
+  <Accordion title="Button88x31.js — Web Badge Component">
+    Renders a classic 88×31 pixel web badge. Accepts `title`, `color`, `textColor` (default `text-white`), and `icon` (default `★`) props. The fixed `w-[88px] h-[31px]` dimensions and 1px black border exactly match the historical web badge standard:
+
+    ```js
+    // Button88x31 accepts: { title, color, textColor?, icon? }
+    function Button88x31({ title, color, textColor = 'text-white', icon = '★' }) { ... }
+    ```
+  </Accordion>
+
+  <Accordion title="VisitorCounter.js, WebringBadges.js, UnderConstructionSign.js">
+    **`WebringBadges`** renders a horizontal row of `Button88x31` instances representing fictional or real webring memberships — a staple of late-1990s personal pages.
+
+    **`UnderConstructionSign`** renders an animated "Under Construction" notice, typically placed on pages that are not yet complete, matching the era's tradition of displaying animated GIF construction signs.
+  </Accordion>
+
+</AccordionGroup>
+
+## `pages/` — Static HTML Fallbacks
+
+The `pages/` directory contains eight standalone HTML files — one for each non-home route:
+
+```
+pages/
+├── About.html
+├── Blog.html
+├── CaseStudies.html
+├── Contact.html
+├── Projects.html
+├── Skills.html
+├── Testimonials.html
+└── Work.html
+```
+
+These are static HTML representations of each page. They serve as fallbacks for environments where the React SPA is not running (such as direct file access or pre-Vite static generation workflows). In the live React application, all routing and rendering is handled client-side by React Router — the `pages/` HTML files are not loaded by the SPA during normal navigation.
+
+## CSS Architecture Summary
+
+The styling system combines two layers:
+
+1. **Tailwind CSS utility classes** — generated at build time based on the classes found in component source. Utility classes like `bg-black`, `text-lemon`, `font-pixel`, `animate-marquee`, `z-[9999]`, and `bevel-container-inset` are all present in `assets/main.css`.
+
+2. **Custom CSS** — hand-authored classes and keyframe animations appended after the Tailwind output. These define the bevel effects, rainbow text, scanlines, marching ants borders, and the five custom animation sequences that give the site its Y2K character.
+
+Both layers are compiled into the single `assets/main.css` file — there is no runtime CSS-in-JS, no CSS modules, and no separate theme file.

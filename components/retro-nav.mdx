@@ -1,0 +1,169 @@
+---
+title: "RetroNav: Sticky Pixel-Font Navigation Component"
+sidebarTitle: "RetroNav"
+description: "RetroNav is a sticky navigation bar with nine routes, Windows 98 bevel styling, pixel-font labels, and marching-ants highlight on the active route."
+---
+
+`RetroNav` is Webmaster's site-wide navigation bar. It renders nine hardcoded route links across a silver bevel-container panel that sticks to the top of the viewport while scrolling. The active route gets a sunken inset effect, a hot-pink text color, and an animated **marching-ants** dashed border. Inactive routes display as raised bevel buttons in the VT323 pixel font that turn hot-pink on hover.
+
+## Requirements
+
+`RetroNav` uses React Router v6's `<NavLink>` internally to detect the active route. It must be rendered inside a React Router context — either `<HashRouter>` or `<BrowserRouter>`. In the Webmaster app, the root `App` component wraps the entire tree in `<HashRouter>` (imported as `H` from the bundle).
+
+<Note>
+  Rendering `<RetroNav />` outside of a router context will throw a React Router invariant error at runtime. Always place it inside `<HashRouter>` or `<BrowserRouter>`.
+</Note>
+
+## Props
+
+`RetroNav` accepts no props. All nine routes and their labels are hardcoded inside the component.
+
+## Routes
+
+The navigation items are defined as the following static array:
+
+```js
+[
+  { path: '/',             label: 'Home'        },
+  { path: '/about',        label: 'About Me'    },
+  { path: '/skills',       label: 'Mad Skillz'  },
+  { path: '/projects',     label: 'My Stuff'    },
+  { path: '/work',         label: 'Real Jobs'   },
+  { path: '/casestudies',  label: 'Deep Dives'  },
+  { path: '/blog',         label: 'My Writings' },
+  { path: '/testimonials', label: 'Cool People' },
+  { path: '/contact',      label: 'Guestbook'   },
+]
+```
+
+## Active vs. Inactive State
+
+Each nav item is rendered as a `<NavLink>`. React Router v6's `NavLink` passes an `isActive` boolean to the `className` callback, which `RetroNav` uses to apply one of two class sets:
+
+| State    | CSS Classes Applied |
+|----------|---------------------|
+| Active   | `bevel-container-inset bg-white text-hotpink marching-ants` |
+| Inactive | `bevel-button px-3 py-1 font-pixel text-lg text-black hover:text-hotpink` |
+
+The **active** state uses `.bevel-container-inset` for the sunken pressed-in look, white background, hot-pink text (`#FF69B4`), and the `.marching-ants` animated dashed border (a 1s linear infinite CSS keyframe animation). The **inactive** state uses `.bevel-button` for the raised raised look with black text and a hot-pink hover.
+
+### Blinking ▶ / ◀ Indicators
+
+When a route is active, the component renders a blinking `▶` arrow before the label and a blinking `◀` arrow after it. Both use the `.animate-blink` class — a CSS keyframe animation that toggles opacity between 1 and 0 in a 1s step-start loop:
+
+```css
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.animate-blink {
+  animation: blink 1s step-start infinite;
+}
+```
+
+<Note>
+  The blinking indicators are suppressed when `prefers-reduced-motion: reduce` is set in the user's OS accessibility preferences. The `.animate-blink` animation is disabled globally under that media query in `main.css`.
+</Note>
+
+## Container Layout
+
+The outer wrapper uses these classes:
+
+```
+bevel-container p-2 mb-6 bg-silver sticky top-4 z-40
+```
+
+Nav items sit inside a `flex flex-wrap gap-2 justify-center` inner div, so they reflow naturally on narrow screens.
+
+## Usage
+
+### Basic — inside HashRouter
+
+This is how `RetroNav` is used in the Webmaster `App` component (`fe` in the compiled bundle):
+
+```jsx
+import { HashRouter } from 'react-router-dom';
+import { RetroNav } from './components/RetroNav';
+
+export default function App() {
+  return (
+    <HashRouter>
+      <div className="min-h-screen p-4 md:p-8 max-w-6xl mx-auto relative">
+        <header className="mb-8 text-center">
+          <h1 className="text-5xl md:text-7xl rainbow-text mb-4">
+            ~*~ WELCOME ~*~
+          </h1>
+          <RetroNav />
+        </header>
+        <main className="bg-cream bevel-container p-4 md:p-8 min-h-[60vh]">
+          {/* page content */}
+        </main>
+      </div>
+    </HashRouter>
+  );
+}
+```
+
+### Inside BrowserRouter
+
+```jsx
+import { BrowserRouter } from 'react-router-dom';
+import { RetroNav } from './components/RetroNav';
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <RetroNav />
+      {/* routes */}
+    </BrowserRouter>
+  );
+}
+```
+
+## Full Component Reference
+
+```jsx
+// components/RetroNav.js (source)
+import { NavLink } from 'react-router-dom';
+
+const navItems = [
+  { path: '/',             label: 'Home'        },
+  { path: '/about',        label: 'About Me'    },
+  { path: '/skills',       label: 'Mad Skillz'  },
+  { path: '/projects',     label: 'My Stuff'    },
+  { path: '/work',         label: 'Real Jobs'   },
+  { path: '/casestudies',  label: 'Deep Dives'  },
+  { path: '/blog',         label: 'My Writings' },
+  { path: '/testimonials', label: 'Cool People' },
+  { path: '/contact',      label: 'Guestbook'   },
+];
+
+export function RetroNav() {
+  return (
+    <nav className="bevel-container p-2 mb-6 bg-silver sticky top-4 z-40">
+      <div className="flex flex-wrap gap-2 justify-center">
+        {navItems.map(({ path, label }) => (
+          <NavLink
+            key={path}
+            to={path}
+            end={path === '/'}
+            className={({ isActive }) =>
+              isActive
+                ? 'bevel-container-inset bg-white text-hotpink marching-ants'
+                : 'bevel-button px-3 py-1 font-pixel text-lg text-black hover:text-hotpink'
+            }
+          >
+            {({ isActive }) => (
+              <>
+                {isActive && <span className="animate-blink mr-1">▶</span>}
+                {label}
+                {isActive && <span className="animate-blink ml-1">◀</span>}
+              </>
+            )}
+          </NavLink>
+        ))}
+      </div>
+    </nav>
+  );
+}
+```

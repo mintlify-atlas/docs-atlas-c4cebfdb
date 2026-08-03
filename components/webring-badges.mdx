@@ -1,0 +1,156 @@
+---
+title: "WebringBadges: Retro Webring Membership Panel"
+sidebarTitle: "WebringBadges"
+description: "WebringBadges renders three retro webring navigation badges — HTML Ring, Geocities, and Web Dev — styled as early-2000s web ring buttons with prev/next navigation."
+---
+
+Before social networks stitched the web together with algorithms, personal sites banded into **webrings** — hand-curated rings of related pages you could surf by clicking `PREV` and `NEXT` buttons embedded on each member site. Joining a webring meant your site showed up in a navigable chain, driving traffic between like-minded pages without a single search engine involved. `WebringBadges` recreates that ritual: a small membership panel in the homepage sidebar proudly declaring three ring affiliations, complete with navigation buttons that transport visitors straight back to 2001.
+
+## Props
+
+`WebringBadges` takes no props. All ring data — names, colors, and layout — is hardcoded directly in the component.
+
+<ParamField body="(none)" type="—">
+  This component is fully self-contained. There are no configurable props. To change ring names or colors, fork the component and edit the hardcoded values directly. See the [Customization tip](#customization) below.
+</ParamField>
+
+## The Three Webrings
+
+Each badge is a horizontally laid-out strip 150 px wide, displaying `< PREV`, the ring name in the center, and `NEXT >` at the right. The three rings rendered are:
+
+<CardGroup cols={3}>
+  <Card title="HTML Ring" icon="code">
+    Background `bg-blue-900` (dark navy), white base text, ring name in **`text-yellow-300`**. The OG ring for markup enthusiasts.
+  </Card>
+  <Card title="Geocities" icon="house">
+    Background `bg-green-800` (forest green), white base text, ring name in **`text-pink-300`**. Honoring the spiritual home of the personal homepage.
+  </Card>
+  <Card title="Web Dev" icon="wrench">
+    Background `bg-purple-900` (deep purple), white base text, ring name in **`text-cyan-300`**. For the builders, tweakers, and `view-source` devotees.
+  </Card>
+</CardGroup>
+
+## Visual Structure
+
+The component renders a `bevel-container` panel with a `bg-silver` background — the classic raised-edge Windows 95 box that makes everything feel tangibly clickable. Inside, a heading and a stacked column of badges:
+
+```
+┌─────────────────────────────┐  ← bevel-container bg-silver p-3
+│     PROUD MEMBER OF         │  ← font-pixel text-sm, border-b
+│  ┌──────────────────────┐   │
+│  │ < PREV  HTML Ring NEXT >│  │  ← bg-blue-900, text-yellow-300
+│  └──────────────────────┘   │
+│  ┌──────────────────────┐   │
+│  │ < PREV  Geocities NEXT >│  │  ← bg-green-800, text-pink-300
+│  └──────────────────────┘   │
+│  ┌──────────────────────┐   │
+│  │ < PREV  Web Dev  NEXT >│  │  ← bg-purple-900, text-cyan-300
+│  └──────────────────────┘   │
+└─────────────────────────────┘
+```
+
+## Badge Markup
+
+Each individual badge uses identical structural classes with only the background color and name text color varying:
+
+```jsx
+// HTML Ring badge
+<div className="border border-black bg-blue-900 text-white text-xs p-1 w-full max-w-[150px] flex justify-between items-center">
+  <span>{"< PREV"}</span>
+  <span className="font-bold text-yellow-300">HTML Ring</span>
+  <span>{"NEXT >"}</span>
+</div>
+
+// Geocities badge
+<div className="border border-black bg-green-800 text-white text-xs p-1 w-full max-w-[150px] flex justify-between items-center">
+  <span>{"< PREV"}</span>
+  <span className="font-bold text-pink-300">Geocities</span>
+  <span>{"NEXT >"}</span>
+</div>
+
+// Web Dev badge
+<div className="border border-black bg-purple-900 text-white text-xs p-1 w-full max-w-[150px] flex justify-between items-center">
+  <span>{"< PREV"}</span>
+  <span className="font-bold text-cyan-300">Web Dev</span>
+  <span>{"NEXT >"}</span>
+</div>
+```
+
+## Full Component Source
+
+The exported component is `WebringBadges` (bundled alias `W`):
+
+```jsx
+import { j as e } from "../assets/jsx-runtime.js";
+
+function WebringBadges() {
+  return (
+    <div className="bevel-container p-3 bg-silver text-center">
+      <h4 className="font-pixel text-sm mb-2 border-b border-gray-500 pb-1">
+        PROUD MEMBER OF
+      </h4>
+      <div className="flex flex-col gap-2 items-center">
+
+        {/* HTML Ring */}
+        <div className="border border-black bg-blue-900 text-white text-xs p-1 w-full max-w-[150px] flex justify-between items-center">
+          <span>{"< PREV"}</span>
+          <span className="font-bold text-yellow-300">HTML Ring</span>
+          <span>{"NEXT >"}</span>
+        </div>
+
+        {/* Geocities */}
+        <div className="border border-black bg-green-800 text-white text-xs p-1 w-full max-w-[150px] flex justify-between items-center">
+          <span>{"< PREV"}</span>
+          <span className="font-bold text-pink-300">Geocities</span>
+          <span>{"NEXT >"}</span>
+        </div>
+
+        {/* Web Dev */}
+        <div className="border border-black bg-purple-900 text-white text-xs p-1 w-full max-w-[150px] flex justify-between items-center">
+          <span>{"< PREV"}</span>
+          <span className="font-bold text-cyan-300">Web Dev</span>
+          <span>{"NEXT >"}</span>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+export { WebringBadges as W };
+```
+
+## Usage
+
+Drop `<WebringBadges />` anywhere — it is currently placed in the **homepage left sidebar column** (`md:col-span-1`), sitting below the "My Rig" photo and above the blinking guestbook callout:
+
+```jsx
+import { WebringBadges } from "./components/WebringBadges";
+
+// Inside your sidebar or layout:
+<WebringBadges />
+```
+
+<Note>
+  The `< PREV` and `NEXT >` navigation buttons are **purely decorative** — they render as `<span>` elements with no `href` or `onClick` handler attached. They evoke the webring aesthetic without linking to an actual ring network. If you want live navigation, you'll need to wire them up to real webring URLs.
+</Note>
+
+## Styling Classes Reference
+
+| Element | Classes |
+|---|---|
+| Outer container | `bevel-container p-3 bg-silver text-center` |
+| Heading | `font-pixel text-sm mb-2 border-b border-gray-500 pb-1` |
+| Badge wrapper (all three) | `border border-black text-white text-xs p-1 w-full max-w-[150px] flex justify-between items-center` |
+| HTML Ring background | `bg-blue-900` |
+| HTML Ring name text | `font-bold text-yellow-300` |
+| Geocities background | `bg-green-800` |
+| Geocities name text | `font-bold text-pink-300` |
+| Web Dev background | `bg-purple-900` |
+| Web Dev name text | `font-bold text-cyan-300` |
+
+## Customization
+
+<Tip>
+  To change ring names, colors, or add new rings, open `components/WebringBadges.js` and duplicate or edit the badge `<div>` blocks. Swap out the `bg-*` class on the wrapper for the new background, and update the `text-*` class on the inner `<span>` to pick a new highlight color. No prop system needs updating — the component is intentionally static, keeping it dead-simple and zero-dependency.
+</Tip>

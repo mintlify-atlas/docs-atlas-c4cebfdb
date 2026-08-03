@@ -1,0 +1,127 @@
+---
+title: "SparkleCursor: Mouse-Following Sparkle Trail Effect"
+sidebarTitle: "SparkleCursor"
+description: "SparkleCursor adds an animated sparkle particle trail that follows the user's mouse, rendered in turquoise, pink, lemon, and white — with prefers-reduced-motion support."
+---
+
+`SparkleCursor` is a globally-mounted overlay that tracks the user's mouse and emits a trail of ✦ sparkle particles in four retro colors. Each particle scales in with a `animate-ping` pulse, then fades out after 800ms — creating the shimmery cursor effect that defined the golden age of personal homepages. Because the container is `fixed` and `pointer-events-none`, it sits above all page content without ever blocking a click.
+
+## Props
+
+`SparkleCursor` accepts no props. It reads directly from DOM mouse events and manages its own internal state.
+
+<ParamField body="(none)" type="–">
+  This component takes no props. Drop it once in your app root and it works automatically across every page.
+</ParamField>
+
+## Sparkle Colors
+
+Each particle is assigned one of four colors at random:
+
+| Color name | Hex value | Preview |
+|------------|-----------|---------|
+| Hot pink   | `#FF69B4` | 🩷 |
+| Turquoise  | `#00CED1` | 🩵 |
+| Lemon chiffon | `#FFFACD` | 🌕 |
+| White      | `#FFFFFF` | ⬜ |
+
+## Particle Behavior
+
+- **Character:** `✦` (Black Four Pointed Star), rendered via `font-pixel`
+- **Size:** random between `5px` and `15px` (`Math.random() * 10 + 5`)
+- **Lifetime:** each sparkle is removed from state after **800ms** via `setTimeout`
+- **Animation class:** `animate-ping` — Tailwind's scale-out pulse that creates the twinkling effect
+- **Text shadow:** `0 0 2px #000` — thin dark outline so white sparks stay visible on light backgrounds
+- **Transform on spawn:** `translate(-50%, -50%) translateY(20px) rotate(<random 0–180deg>)` with `opacity: 0` — the sparkle begins offset and invisible, then fades/translates via a CSS `transition` over 0.8s
+
+## Positioning & Layering
+
+The root container uses `pointer-events-none fixed inset-0 z-[9999] overflow-hidden`. This means:
+
+- **`fixed inset-0`** — stretches edge-to-edge over the full viewport
+- **`z-[9999]`** — sits on top of every other element including modals and overlays
+- **`pointer-events-none`** — mouse events pass through completely; nothing is blocked
+- **`overflow-hidden`** — prevents sparkles near viewport edges from creating scrollbars
+
+## Accessibility: `prefers-reduced-motion`
+
+Before attaching the `mousemove` listener, the component checks:
+
+```js
+if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+```
+
+When the user has enabled **Reduce Motion** in their OS settings, the `mousemove` handler returns early and no sparkles are ever created. The component still mounts and renders its container `div`, but it remains empty.
+
+<Note>
+  The check runs inside every `mousemove` event, not just on mount — so if the user toggles their accessibility setting while the page is open, the effect stops immediately without a re-render.
+</Note>
+
+## Core Implementation
+
+The component uses `useState` to hold an array of active sparkle objects and `useEffect` to attach the global `mousemove` listener. Each sparkle is a plain object:
+
+```js
+{
+  id: number,        // auto-incrementing, used as React key
+  x: number,         // event.clientX
+  y: number,         // event.clientY
+  size: number,      // random 5–15px
+  color: string      // one of the four hex values
+}
+```
+
+```jsx
+const [sparkles, setSparkles] = useState([]);
+const colors = ['#FF69B4', '#00CED1', '#FFFACD', '#FFFFFF'];
+
+useEffect(() => {
+  let id = 0;
+  const handleMouseMove = (e) => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const sparkle = {
+      id: id++,
+      x: e.clientX,
+      y: e.clientY,
+      size: Math.random() * 10 + 5,
+      color: colors[Math.floor(Math.random() * colors.length)],
+    };
+
+    setSparkles((prev) => [...prev, sparkle]);
+
+    setTimeout(() => {
+      setSparkles((prev) => prev.filter((s) => s.id !== sparkle.id));
+    }, 800);
+  };
+
+  window.addEventListener('mousemove', handleMouseMove);
+  return () => window.removeEventListener('mousemove', handleMouseMove);
+}, []);
+```
+
+## Usage
+
+Place `<SparkleCursor />` **once** at the top level of your app — inside `App.tsx` or `main.jsx` alongside your router. Placing it at the root ensures it covers every route automatically.
+
+```jsx
+// main.jsx
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
+import { SparkleCursor } from './components/SparkleCursor';
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <BrowserRouter>
+      <SparkleCursor />
+      <App />
+    </BrowserRouter>
+  </StrictMode>
+);
+```
+
+<Tip>
+  Because `SparkleCursor` is `fixed` and `pointer-events-none`, it doesn't matter where in the component tree you place it — but keeping it outside your route hierarchy ensures it persists across page transitions without unmounting and remounting.
+</Tip>

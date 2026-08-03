@@ -1,0 +1,162 @@
+---
+title: "Testimonials: Badge Hover-Reveal Quote Display"
+sidebarTitle: "Testimonials"
+description: "The Testimonials page shows six 88×31 badges representing reviewers — hovering each reveals a popover tooltip with their quote and a CSS arrow pointer."
+---
+
+The Testimonials page (`/testimonials`) uses the same 88×31 `Button88x31` component seen on the Projects page, repurposed here as reviewer identity badges. Six badges are laid out in a flex-wrap row centred inside a silver `bevel-container`. Hovering any badge scales it up 110% and reveals a yellow popover tooltip anchored below it with a CSS triangle arrow pointer. Bouncing 👍 and ⭐ emojis are absolutely positioned in the bottom corners of the container.
+
+## Route
+
+| Path            | Component function |
+|-----------------|--------------------|
+| `/testimonials` | `be()` in `assets/main.js` |
+
+## Testimonials Data Array
+
+All six testimonials are defined in the `pe` constant above `be()`:
+
+```js
+const pe = [
+  { id: 1, name: "Mom",    quote: "Very nice website honey, but what does it do?",                   color: "#FF69B4" },
+  { id: 2, name: "Boss",   quote: "He actually centered the div. I'm impressed.",                    color: "#008000" },
+  { id: 3, name: "Client", quote: "Can we make the logo bigger? Otherwise perfect.",                 color: "#000080" },
+  { id: 4, name: "Peer",   quote: "His code is clean, but his taste in music is questionable.",      color: "#800080" },
+  { id: 5, name: "Dog",    quote: "Woof. (He gives good treats while coding)",                       color: "#808000" },
+  { id: 6, name: "Hacker", quote: "Tried to SQL inject the guestbook. Failed. Respect.",             color: "#FF0000" },
+];
+```
+
+Each `color` value becomes the background of the 88×31 badge. The `name` appears as the badge label and as the attribution line inside the tooltip.
+
+## Page Title
+
+```jsx
+<h2 className="text-4xl md:text-5xl text-white bg-black inline-block px-8 py-4 mb-12 border-4 border-turquoise shadow-[8px_8px_0_#00CED1] font-pixel">
+  Cool People Who Like Me
+</h2>
+```
+
+The turquoise `shadow-[8px_8px_0_#00CED1]` drop shadow creates the retro offset-box effect. The text is `font-pixel` on `bg-black` with `border-4 border-turquoise`.
+
+## Badge Container
+
+The silver bevel container uses `relative min-h-[400px]` to establish a positioning context for the decorative corner emojis:
+
+```jsx
+<div className="relative min-h-[400px] bg-silver bevel-container p-8">
+  <p className="font-comic mb-8 text-lg">
+    Don't just take my word for it! Hover over these badges to see what people are saying!
+  </p>
+  <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+    {pe.map(t => ( ... ))}
+  </div>
+  {/* Decorative bouncing emojis */}
+  <div className="absolute bottom-4 left-4 text-4xl animate-bounce">👍</div>
+  <div className="absolute bottom-4 right-4 text-4xl animate-bounce" style={{ animationDelay: "0.5s" }}>⭐</div>
+</div>
+```
+
+<Tip>
+  The ⭐ emoji has `animationDelay: "0.5s"` so it bounces out of phase with the 👍, creating a visually lively pair.
+</Tip>
+
+## Hover Interaction
+
+Active badge ID is tracked with `useState(null)`. The badge wrapper scales up on hover via a conditional Tailwind class:
+
+```jsx
+const [s, r] = useState(null);
+
+<div
+  className="relative"
+  onMouseEnter={() => r(t.id)}
+  onMouseLeave={() => r(null)}
+>
+  <div className={`transition-transform duration-200 ${s === t.id ? "scale-110" : ""}`}>
+    <Button88x31 title={t.name} color={t.color} icon="♥" />
+  </div>
+  {s === t.id && (
+    <div className="absolute z-50 top-full left-1/2 transform -translate-x-1/2 mt-4 w-64 ...">
+      {/* Tooltip content */}
+    </div>
+  )}
+</div>
+```
+
+Unlike the Projects page (which uses opacity/scale transitions for the card), the testimonial tooltip is conditionally rendered with `&&` — it mounts and unmounts from the DOM on hover.
+
+## Tooltip Anatomy
+
+The tooltip is an absolutely-positioned `w-64 bg-yellow-100 border-2 border-black p-4 shadow-[4px_4px_0_rgba(0,0,0,0.5)]` panel anchored `top-full` (below the badge) and horizontally centred with `left-1/2 -translate-x-1/2`:
+
+```jsx
+<div className="absolute z-50 top-full left-1/2 transform -translate-x-1/2 mt-4 w-64
+                bg-yellow-100 border-2 border-black p-4 shadow-[4px_4px_0_rgba(0,0,0,0.5)]">
+
+  {/* CSS triangle pointing upward — outer (black border) */}
+  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-0 h-0
+                  border-l-[10px] border-l-transparent
+                  border-r-[10px] border-r-transparent
+                  border-b-[10px] border-b-black" />
+
+  {/* CSS triangle pointing upward — inner (yellow fill) */}
+  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0
+                  border-l-[8px] border-l-transparent
+                  border-r-[8px] border-r-transparent
+                  border-b-[8px] border-b-yellow-100" />
+
+  {/* Quote text */}
+  <p className="font-comic text-lg italic text-gray-800">"{t.quote}"</p>
+
+  {/* Attribution */}
+  <p className="font-bold text-right mt-2 text-sm">- {t.name}</p>
+</div>
+```
+
+The arrow pointer uses two overlapping CSS border-trick triangles: the outer black triangle is 10px, the inner yellow-fill triangle is 8px and offset by 1px upward — creating the illusion of a bordered arrow.
+
+## Badge Colour Reference
+
+| Reviewer | Hex Colour | Colour Name     |
+|----------|-----------|-----------------|
+| Mom      | `#FF69B4` | Hot Pink        |
+| Boss     | `#008000` | Web Green       |
+| Client   | `#000080` | Navy Blue       |
+| Peer     | `#800080` | Purple          |
+| Dog      | `#808000` | Olive           |
+| Hacker   | `#FF0000` | Red             |
+
+## Customisation Guide
+
+<CodeGroup>
+```js Add a New Testimonial
+// assets/main.js — append to the pe array
+{
+  id: 7,
+  name: "Cat",
+  quote: "Knocked laptop off desk. 10/10.",
+  color: "#FF8C00",  // dark orange
+},
+```
+
+```js Change a Quote
+// In the pe array — update the quote string
+{ id: 1, name: "Mom", quote: "Your website is on the Google!", color: "#FF69B4" },
+```
+
+```js Change a Badge Colour
+// In the pe array — update the color field with any hex string
+{ id: 6, name: "Hacker", quote: "...", color: "#8B0000" },  // dark red instead
+```
+
+```js Remove the Bounce Emojis
+// In be() — delete or comment out these two lines:
+<div className="absolute bottom-4 left-4 text-4xl animate-bounce">👍</div>
+<div className="absolute bottom-4 right-4 text-4xl animate-bounce" style={{ animationDelay: "0.5s" }}>⭐</div>
+```
+</CodeGroup>
+
+<Note>
+  The `Button88x31` component receives an `icon="♥"` prop on this page (unlike the Projects page which does not pass an icon). Check `components/Button88x31.js` to see how the icon prop is rendered on the badge face.
+</Note>

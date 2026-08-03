@@ -1,72 +1,88 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "Webmaster",
+  "theme": "willow",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
-  },
-  "favicon": "/favicon.svg",
-  "navigation": {
-    "pages": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
-        ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
-  },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "primary": "#00CED1",
+    "light": "#FFFACD",
+    "dark": "#008080"
   },
   "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
     "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "type": "github",
+      "href": "https://github.com/apursley2012/webmaster"
     }
-  },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/apursley2012/webmaster"
     }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Overview",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart", "project-structure"]
+          },
+          {
+            "group": "Styling & Theming",
+            "pages": ["styling/retro-design-system", "styling/css-classes", "styling/animations"]
+          }
+        ]
+      },
+      {
+        "tab": "Components",
+        "groups": [
+          {
+            "group": "UI Components",
+            "pages": [
+              "components/retro-nav",
+              "components/marquee-strip",
+              "components/bevel-ui",
+              "components/button-88x31"
+            ]
+          },
+          {
+            "group": "Interactive Components",
+            "pages": [
+              "components/sparkle-cursor",
+              "components/visitor-counter",
+              "components/page-transition",
+              "components/under-construction"
+            ]
+          },
+          {
+            "group": "Page Sections",
+            "pages": [
+              "components/webring-badges",
+              "components/skills-scoreboard",
+              "components/testimonials"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Pages",
+        "groups": [
+          {
+            "group": "Site Pages",
+            "pages": [
+              "pages/home",
+              "pages/about",
+              "pages/skills",
+              "pages/projects",
+              "pages/work",
+              "pages/case-studies",
+              "pages/blog",
+              "pages/testimonials",
+              "pages/contact"
+            ]
+          }
+        ]
+      }
+    ]
   }
 }

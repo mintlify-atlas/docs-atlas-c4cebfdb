@@ -1,0 +1,253 @@
+---
+title: "Testimonials: Hover-Reveal Badge Quote Component"
+sidebarTitle: "Testimonials"
+description: "The Testimonials section renders six 88×31 badges on hover reveals a tooltip with each person's quote — styled with a drop-shadow popover and CSS arrow pointer."
+---
+
+Social proof has looked many ways across the history of the web. In the early 2000s, it looked like a row of 88×31 pixel badges — those tiny graphical buttons that every site collected like trading cards. The Testimonials component pays homage to that tradition: six badge-sized buttons, one for each endorser, that reveal a hover-triggered quote tooltip when you mouse over them. The result is a page that is equal parts portfolio evidence and gentle self-parody. It renders at the `/testimonials` route.
+
+## What It Looks Like
+
+At rest, the page shows a `bevel-container` silver panel titled **"Cool People Who Like Me"** containing six `<Button88x31>` badges arranged in a centered wrapping flex row. Each badge shows the endorser's name and a `♥` icon against their personal color. A bouncing 👍 emoji anchors the bottom-left corner and a delayed-bounce ⭐ sits in the bottom-right.
+
+On hover, the hovered badge scales up (`scale-110`) and a yellow tooltip card descends from below it with a CSS triangle pointer at the top, showing the full quote and attribution.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│    Cool People Who Like Me   (font-pixel, turquoise)    │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │  "Don't just take my word for it! Hover..."      │   │
+│  │                                                  │   │
+│  │  [♥ Mom] [♥ Boss] [♥ Client]                    │   │
+│  │  [♥ Peer] [♥ Dog] [♥ Hacker]                   │   │
+│  │                                                  │   │
+│  │ 👍 (bottom-left bounce)       ⭐ (bottom-right) │   │
+│  └──────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+
+On hover over "Boss":
+        ┌────────────────────────────┐
+[♥ Boss]│       ▲ (CSS triangle)     │
+ ↑scale │  "He actually centered    │
+  110%  │   the div. I'm impressed." │
+        │                   — Boss   │
+        └────────────────────────────┘
+```
+
+## Testimonials Data Array
+
+The six testimonials are hardcoded in the `pe` array inside `assets/main.js`. Each entry has an `id`, a `name` (used as the badge label and tooltip attribution), a `quote`, and a hex `color` that drives the badge's background:
+
+```js
+const pe = [
+  {
+    id: 1,
+    name: "Mom",
+    quote: "Very nice website honey, but what does it do?",
+    color: "#FF69B4",  // hot pink
+  },
+  {
+    id: 2,
+    name: "Boss",
+    quote: "He actually centered the div. I'm impressed.",
+    color: "#008000",  // green
+  },
+  {
+    id: 3,
+    name: "Client",
+    quote: "Can we make the logo bigger? Otherwise perfect.",
+    color: "#000080",  // navy
+  },
+  {
+    id: 4,
+    name: "Peer",
+    quote: "His code is clean, but his taste in music is questionable.",
+    color: "#800080",  // purple
+  },
+  {
+    id: 5,
+    name: "Dog",
+    quote: "Woof. (He gives good treats while coding)",
+    color: "#808000",  // olive
+  },
+  {
+    id: 6,
+    name: "Hacker",
+    quote: "Tried to SQL inject the guestbook. Failed. Respect.",
+    color: "#FF0000",  // red
+  },
+];
+```
+
+## Props
+
+The Testimonials component is an inline page-level function (`be()`) in `assets/main.js`. It is not exported as a standalone importable component with a public prop API.
+
+<ParamField body="(none)" type="—">
+  No props are accepted. All testimonial data is sourced from the hardcoded `pe` array in `assets/main.js`. To add, remove, or edit quotes, modify that array directly.
+</ParamField>
+
+## Interaction: Hover State
+
+The component uses a single piece of React state to track which badge is currently hovered:
+
+```jsx
+const [hoveredId, setHoveredId] = useState(null);
+```
+
+Each badge wrapper wires `onMouseEnter` and `onMouseLeave` to set or clear the active ID:
+
+```jsx
+<div
+  className="relative"
+  onMouseEnter={() => setHoveredId(testimonial.id)}
+  onMouseLeave={() => setHoveredId(null)}
+>
+  {/* Badge scales up when active */}
+  <div className={`transition-transform duration-200 ${
+    hoveredId === testimonial.id ? "scale-110" : ""
+  }`}>
+    <Button88x31 title={testimonial.name} color={testimonial.color} icon="♥" />
+  </div>
+
+  {/* Tooltip — only rendered when this badge is active */}
+  {hoveredId === testimonial.id && (
+    <div className="absolute z-50 top-full left-1/2 transform -translate-x-1/2 mt-4 w-64 bg-yellow-100 border-2 border-black p-4 shadow-[4px_4px_0_rgba(0,0,0,0.5)]">
+      {/* CSS triangle pointer */}
+      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[10px] border-b-black" />
+      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[8px] border-b-yellow-100" />
+
+      <p className="font-comic text-lg italic text-gray-800">"{testimonial.quote}"</p>
+      <p className="font-bold text-right mt-2 text-sm">— {testimonial.name}</p>
+    </div>
+  )}
+</div>
+```
+
+## Tooltip Anatomy
+
+The tooltip is an absolutely-positioned card that drops below the hovered badge. It has no enter/exit animation — it appears and disappears instantly on mouse events.
+
+<CardGroup cols={2}>
+  <Card title="Positioning" icon="location-dot">
+    `absolute z-50 top-full left-1/2 -translate-x-1/2 mt-4` — centered horizontally below the badge with 4px of gap. `z-50` keeps it above all other page content.
+  </Card>
+  <Card title="Card Styling" icon="palette">
+    `w-64 bg-yellow-100 border-2 border-black p-4` with `shadow-[4px_4px_0_rgba(0,0,0,0.5)]` — a chunky 4px offset drop shadow, the retro hard-shadow style used throughout the site.
+  </Card>
+  <Card title="CSS Triangle" icon="caret-up">
+    Two stacked zero-dimension `div`s using the CSS border-trick produce the triangle pointer at the top of the card. The outer triangle is `border-b-black`; the inner is `border-b-yellow-100`, creating a two-pixel outline effect.
+  </Card>
+  <Card title="Quote Typography" icon="quote-left">
+    Quote text in `font-comic text-lg italic text-gray-800`. Attribution in `font-bold text-right text-sm`, right-aligned with an em-dash prefix.
+  </Card>
+</CardGroup>
+
+### CSS Triangle Reference
+
+The double-div triangle technique works by exploiting how CSS renders zero-width/zero-height elements with large borders:
+
+```css
+/* Outer triangle (black border) */
+.triangle-outer {
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid black;    /* ← visible edge */
+  top: -12px;                         /* protrudes above card */
+}
+
+/* Inner triangle (yellow fill, slightly smaller, slightly higher) */
+.triangle-inner {
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #fefce8;  /* bg-yellow-100 */
+  top: -8px;
+}
+```
+
+Both are `left-1/2 -translate-x-1/2` — horizontally centered on the badge, so the arrow always points back at the name.
+
+## The `<Button88x31>` Integration
+
+Each testimonial renders as a `<Button88x31>` component — the site's reusable 88×31 pixel button primitive — passed three values from the testimonial entry:
+
+```jsx
+<Button88x31
+  title={testimonial.name}   // badge label text
+  color={testimonial.color}  // hex string background color
+  icon="♥"                   // hardcoded heart icon for all testimonials
+/>
+```
+
+The `icon="♥"` prop is hardcoded identically for every testimonial badge, giving the row visual consistency while the `color` prop differentiates each person.
+
+## Decorative Corner Elements
+
+Two absolutely-positioned emoji anchors sit inside the silver container, decorating the bottom corners:
+
+```jsx
+{/* Bottom-left */}
+<div className="absolute bottom-4 left-4 text-4xl animate-bounce">
+  👍
+</div>
+
+{/* Bottom-right — delayed half a second for staggered bounce */}
+<div
+  className="absolute bottom-4 right-4 text-4xl animate-bounce"
+  style={{ animationDelay: "0.5s" }}
+>
+  ⭐
+</div>
+```
+
+The 0.5-second delay on ⭐ creates a loose alternating bounce rhythm between the two icons — they never land at exactly the same moment.
+
+## Page Title Styling
+
+```jsx
+<h2 className="text-4xl md:text-5xl text-white bg-black inline-block px-8 py-4 mb-12 border-4 border-turquoise shadow-[8px_8px_0_#00CED1] font-pixel">
+  Cool People Who Like Me
+</h2>
+```
+
+The heading uses an 8px hard shadow in `#00CED1` (the site's turquoise) — double the size of the standard 4px shadow used on other elements, making it the visual anchor of the page.
+
+## Route Registration
+
+The Testimonials component is the full page content for `/testimonials`, registered in the router inside `assets/main.js`:
+
+```jsx
+<Route
+  path="/testimonials"
+  element={<Layout><Testimonials /></Layout>}
+/>
+```
+
+<Note>
+  Like the Skills Scoreboard, this is a **page-level component** — it is not intended to be embedded inside other components. It fills the complete `<main>` content area of the layout shell.
+</Note>
+
+## Customizing Testimonials
+
+To add a new quote, append an entry to the `pe` array in `assets/main.js`:
+
+```js
+// assets/main.js
+const pe = [
+  // ... existing entries ...
+  {
+    id: 7,
+    name: "Cat",
+    quote: "Knocked his laptop off the desk twice. He still loves me.",
+    color: "#FF8C00",  // dark orange
+  },
+];
+```
+
+<Tip>
+  Keep `name` values short — they appear as the badge label inside the constrained 88×31 pixel frame. One word or a short handle works best. For `color`, any valid CSS hex color works; high-contrast colors with white text (`#000080`, `#008000`, `#FF0000`) look most at home in the retro badge aesthetic.
+</Tip>

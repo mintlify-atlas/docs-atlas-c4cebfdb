@@ -1,0 +1,111 @@
+{
+  "projectType": "frontend",
+  "projectName": "Webmaster",
+  "projectDescription": "A retro-styled personal portfolio website built with React, featuring Y2K/Web 1.0 aesthetic components like marquee strips, visitor counters, sparkle cursors, 88x31 badges, and Windows 98-style bevel UI elements.",
+  "theme": "willow",
+  "primaryColor": "#00CED1",
+  "lightColor": "#FFFACD",
+  "darkColor": "#008080",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Overview",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart", "project-structure"]
+          },
+          {
+            "group": "Styling & Theming",
+            "pages": ["styling/retro-design-system", "styling/css-classes", "styling/animations"]
+          }
+        ]
+      },
+      {
+        "tab": "Components",
+        "groups": [
+          {
+            "group": "UI Components",
+            "pages": [
+              "components/retro-nav",
+              "components/marquee-strip",
+              "components/bevel-ui",
+              "components/button-88x31"
+            ]
+          },
+          {
+            "group": "Interactive Components",
+            "pages": [
+              "components/sparkle-cursor",
+              "components/visitor-counter",
+              "components/page-transition",
+              "components/under-construction"
+            ]
+          },
+          {
+            "group": "Page Sections",
+            "pages": [
+              "components/webring-badges",
+              "components/skills-scoreboard",
+              "components/testimonials"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Pages",
+        "groups": [
+          {
+            "group": "Site Pages",
+            "pages": [
+              "pages/home",
+              "pages/about",
+              "pages/skills",
+              "pages/projects",
+              "pages/work",
+              "pages/case-studies",
+              "pages/blog",
+              "pages/testimonials",
+              "pages/contact"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Retro Y2K/Web 1.0 aesthetic with teal background, Comic Sans font, and pixel fonts",
+    "Windows 98-style bevel container and button components",
+    "Animated sparkle cursor following mouse movement",
+    "Marquee text strips with configurable content",
+    "Visitor counter with 7-segment LED-style display",
+    "88x31 pixel badge components for webring-style linking",
+    "Page transition animations using Framer Motion",
+    "Arcade-style skills high score board",
+    "Retro guestbook contact form",
+    "Responsive layout with mobile support",
+    "React Router v6 SPA routing with nine pages",
+    "Custom CSS animations: blink, marquee, bob, rainbow-text, marching-ants"
+  ],
+  "publicApiSurface": [
+    "RetroNav — sticky navigation bar with active route highlighting and marching-ants border",
+    "MarqueeStrip({ text, className }) — scrolling ticker strip with configurable text and style",
+    "SparkleCursor — fixed sparkle effect component following mouse cursor",
+    "PageTransition — wraps page content with Framer Motion enter/exit animations",
+    "VisitorCounter — animated LED-style visitor counter starting at 1337",
+    "WebringBadges — webring membership badge panel with HTML Ring, Geocities, and Web Dev rings",
+    "UnderConstructionSign — blinking 'under construction' notice component",
+    "Button88x31({ title, color, textColor, icon }) — 88x31 pixel retro badge button",
+    "CSS utility: .bevel-container — Windows 98-style raised border",
+    "CSS utility: .bevel-container-inset — Windows 98-style sunken border",
+    "CSS utility: .bevel-button — clickable bevel-styled button",
+    "CSS utility: .font-pixel — VT323 monospace pixel font",
+    "CSS utility: .font-comic — Comic Neue cursive font",
+    "CSS utility: .rainbow-text — animated rainbow gradient text",
+    "CSS utility: .retro-dashed — hot-pink dashed border",
+    "CSS utility: .retro-dotted — turquoise dotted border",
+    "CSS utility: .marching-ants — animated dashed selection border",
+    "CSS utility: .scanlines — CRT scanline overlay effect",
+    "Routes: /, /about, /skills, /projects, /work, /casestudies, /blog, /contact, /testimonials"
+  ]
+}
