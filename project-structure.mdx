@@ -84,7 +84,7 @@ This is the heart of the application — a single compiled JavaScript bundle pro
 
 - **React 18 and ReactDOM** — the full React runtime and renderer
 - **React Router v6** — `BrowserRouter`, `Routes`, and `Route` components
-- **Framer Motion** — the full animation library (version 11, as identified by the `version: "11.18.2"` string in the bundle)
+- **Framer Motion** — the full animation library (the compiled bundle includes the complete Framer Motion runtime)
 - **All nine page components** — Home, About, Skills, Projects, Work, CaseStudies, Blog, Contact, and Testimonials
 - **The `App` component** — containing the React Router v6 `<Routes>` tree with nine `<Route>` elements
 - **React Scheduler** — for concurrent rendering
@@ -186,7 +186,7 @@ Each file in `components/` is a Vite-compiled ES module that exports exactly one
   </Accordion>
 
   <Accordion title="SparkleCursor.js — Sparkle Particle Effect">
-    Tracks `mousemove` events on `window` and spawns short-lived `✦` glyphs at the cursor position. Each sparkle is assigned a random size (5–15px), one of four colors (`#FF69B4`, `#00CED1`, `#FFFACD`, `#FFFFFF`), and a random rotation. Particles fade out via CSS `opacity` transition after 800ms. Respects `prefers-reduced-motion`:
+    Tracks `mousemove` events on `window` and spawns short-lived `✦` glyphs at the cursor position. Each sparkle is assigned a random size (5–15px), one of four colors (`#FF69B4`, `#00CED1`, `#FFFACD`, `#FFFFFF`), and a random rotation. Each particle uses the `animate-ping` Tailwind class and is removed from the DOM after 800ms via `setTimeout`. Respects `prefers-reduced-motion`:
 
     ```js
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -221,10 +221,12 @@ Each file in `components/` is a Vite-compiled ES module that exports exactly one
     ```
   </Accordion>
 
-  <Accordion title="VisitorCounter.js, WebringBadges.js, UnderConstructionSign.js">
-    **`WebringBadges`** renders a horizontal row of `Button88x31` instances representing fictional or real webring memberships — a staple of late-1990s personal pages.
+  <Accordion title="WebringBadges.js — Webring Badge Row">
+    Renders a horizontal row of `Button88x31` instances representing fictional or real webring memberships — a staple of late-1990s personal pages.
+  </Accordion>
 
-    **`UnderConstructionSign`** renders an animated "Under Construction" notice, typically placed on pages that are not yet complete, matching the era's tradition of displaying animated GIF construction signs.
+  <Accordion title="UnderConstructionSign.js — Construction Banner">
+    Renders an animated "Under Construction" notice, matching the era's tradition of displaying animated GIF construction signs on pages that are not yet complete.
   </Accordion>
 
 </AccordionGroup>

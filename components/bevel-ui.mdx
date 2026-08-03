@@ -1,7 +1,7 @@
 ---
 title: "Bevel UI: Windows 98-Style Container and Button Classes"
 sidebarTitle: "Bevel UI"
-description: "Webmaster's bevel UI classes recreate Windows 98 chrome with raised and sunken border effects — three CSS classes for containers, inset panels, and clickable buttons."
+description: "Bevel UI classes recreate Windows 98 chrome via asymmetric borders — CSS utilities for raised containers, sunken panels, and clickable bevel buttons."
 ---
 
 Webmaster's bevel UI system is a set of three CSS utility classes that recreate the iconic Windows 98 "chrome" aesthetic. The effect works by exploiting asymmetric border colors: a white (or light gray) border on the top and left edges combined with a medium gray border on the bottom and right edges creates the optical illusion of a raised surface lit from the top-left. Inverting those colors makes the element look sunken or pressed in. No images, no box-shadows — just four border values.
@@ -44,7 +44,6 @@ A **sunken panel**. The border colors are flipped — dark on top and left, ligh
 
 ```css
 .bevel-container-inset {
-  background-color: #ffffff;
   border-top:    3px solid #808080;
   border-left:   3px solid #808080;
   border-right:  3px solid #ffffff;

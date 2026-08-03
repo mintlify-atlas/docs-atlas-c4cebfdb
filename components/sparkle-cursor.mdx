@@ -1,7 +1,7 @@
 ---
 title: "SparkleCursor: Mouse-Following Sparkle Trail Effect"
 sidebarTitle: "SparkleCursor"
-description: "SparkleCursor adds an animated sparkle particle trail that follows the user's mouse, rendered in turquoise, pink, lemon, and white — with prefers-reduced-motion support."
+description: "SparkleCursor renders a ✦ particle trail in four retro colors. Respects prefers-reduced-motion and stays non-interactive via pointer-events-none."
 ---
 
 `SparkleCursor` is a globally-mounted overlay that tracks the user's mouse and emits a trail of ✦ sparkle particles in four retro colors. Each particle scales in with a `animate-ping` pulse, then fades out after 800ms — creating the shimmery cursor effect that defined the golden age of personal homepages. Because the container is `fixed` and `pointer-events-none`, it sits above all page content without ever blocking a click.

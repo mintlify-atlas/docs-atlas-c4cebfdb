@@ -1,10 +1,10 @@
 ---
-title: "PageTransition: Framer Motion Page Animations"
+title: "PageTransition: Animated Route Transitions via Framer Motion"
 sidebarTitle: "PageTransition"
-description: "PageTransition wraps route content with Framer Motion fade-and-slide animations — 300ms easeInOut on enter and exit, using AnimatePresence in wait mode."
+description: "PageTransition wraps each route in a Framer Motion fade, slide, and scale animation — 400ms easeOut with AnimatePresence wait mode for clean transitions."
 ---
 
-`PageTransition` is a thin wrapper around Framer Motion's `motion.div` that gives every route change a smooth fade-and-slide feel. When a new page enters, it slides up from 20px below and fades in. When a page exits, it slides up a further 20px and fades out. The `AnimatePresence mode="wait"` at the router level ensures the outgoing page finishes its exit animation before the incoming page begins — preventing any visual overlap between routes.
+`PageTransition` is a thin wrapper around Framer Motion's `motion.div` that gives every route change a smooth fade-and-slide feel. When a new page enters, it slides up from 20px below, fades in, and scales from 0.98 to full size. When a page exits, it slides up a further 20px, fades out, and scales back down slightly. The `AnimatePresence mode="wait"` at the router level ensures the outgoing page finishes its exit animation before the incoming page begins — preventing any visual overlap between routes.
 
 ## Props
 
@@ -18,10 +18,10 @@ The component passes the following variant objects directly to `motion.div`:
 
 | Prop | Value | Description |
 |---|---|---|
-| `initial` | `{ opacity: 0, y: 20 }` | Page starts invisible, offset 20px below its final position |
-| `animate` | `{ opacity: 1, y: 0 }` | Page fades in and slides up to its natural position |
-| `exit` | `{ opacity: 0, y: -20 }` | Page fades out while continuing to slide upward by 20px |
-| `transition` | `{ duration: 0.3, ease: 'easeInOut' }` | 300ms cubic-ease on both enter and exit |
+| `initial` | `{ opacity: 0, y: 20, scale: 0.98 }` | Page starts invisible, offset 20px below and very slightly scaled down |
+| `animate` | `{ opacity: 1, y: 0, scale: 1 }` | Page fades in, slides up to its natural position, and scales to full size |
+| `exit` | `{ opacity: 0, y: -20, scale: 0.98 }` | Page fades out while continuing to slide upward and shrinking slightly |
+| `transition` | `{ duration: 0.4, ease: 'easeOut' }` | 400ms ease-out on both enter and exit |
 
 The symmetry between `y: 20` on enter and `y: -20` on exit creates a continuous upward momentum — each page flows naturally out of the one before it.
 
@@ -33,10 +33,11 @@ import { motion } from 'framer-motion';
 export function PageTransition({ children }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3, ease: 'easeInOut' }}
+      initial={{ opacity: 0, y: 20, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.98 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="w-full h-full scanlines"
     >
       {children}
     </motion.div>
@@ -103,13 +104,13 @@ No additional configuration is needed. Framer Motion's `motion` components and `
     The `key={location.pathname}` on `<Routes>` changes, so React unmounts the old `Routes` tree and mounts a new one. `AnimatePresence` intercepts the unmount.
   </Step>
   <Step title="Exit animation plays">
-    The outgoing page's `motion.div` animates to `{ opacity: 0, y: -20 }` over 300ms. The element stays in the DOM until the animation completes.
+    The outgoing page's `motion.div` animates to `{ opacity: 0, y: -20, scale: 0.98 }` over 400ms. The element stays in the DOM until the animation completes.
   </Step>
   <Step title="New page mounts">
-    Once the exit animation is done, `AnimatePresence` allows the old element to fully unmount, then the new page mounts and animates from `{ opacity: 0, y: 20 }` to `{ opacity: 1, y: 0 }`.
+    Once the exit animation is done, `AnimatePresence` allows the old element to fully unmount, then the new page mounts and animates from `{ opacity: 0, y: 20, scale: 0.98 }` to `{ opacity: 1, y: 0, scale: 1 }`.
   </Step>
 </Steps>
 
 <Tip>
-  To adjust the feel of transitions, tweak the `duration` (currently `0.3s`) or swap `ease: 'easeInOut'` for another Framer Motion easing like `'anticipate'` or a custom cubic-bezier array such as `[0.4, 0, 0.2, 1]`.
+  To adjust the feel of transitions, tweak the `duration` (currently `0.4s`) or swap `ease: 'easeOut'` for another Framer Motion easing like `'anticipate'` or a custom cubic-bezier array such as `[0.4, 0, 0.2, 1]`.
 </Tip>

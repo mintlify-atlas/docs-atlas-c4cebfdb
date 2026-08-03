@@ -4,7 +4,11 @@ sidebarTitle: "Quickstart"
 description: "Clone the Webmaster repo, install dependencies with npm, and launch the Vite dev server to see the retro portfolio running locally in minutes."
 ---
 
-Webmaster is a Vite-powered React SPA. Getting it running locally takes one `git clone`, one install command, and one dev server command — the whole thing is up in under five minutes. The steps below assume you're working from the original source (not the pre-built static output in the repository root).
+Webmaster is a Vite-powered React SPA. Getting it running locally takes one `git clone`, one install command, and one dev server command — the whole thing is up in under five minutes. The steps below assume you're working from the original Vite source project.
+
+<Note>
+  The public repository ships **pre-compiled static assets** — `assets/main.js`, `assets/main.css`, and all `components/*.js` files are already built and can be served directly from any static host without a build step. The `npm install` / `npm run dev` workflow below applies when working from the original Vite development source (with `package.json` and `src/`). If you just want to host the site, skip to serving `index.html` directly.
+</Note>
 
 ## Prerequisites
 
@@ -81,20 +85,19 @@ Webmaster is a Vite-powered React SPA. Getting it running locally takes one `git
     npm run build
     ```
 
-    Vite bundles everything into the `dist/` directory:
+    Vite bundles everything into an output directory (typically `dist/`), producing a structure equivalent to what already exists in the repository root:
 
     ```
-    dist/
     ├── index.html
     ├── assets/
-    │   ├── main-[hash].js    # Bundled React app
-    │   ├── main-[hash].css   # Tailwind + custom CSS
+    │   ├── main.js           # Bundled React app
+    │   ├── main.css          # Tailwind + custom CSS
     │   └── jsx-runtime.js
     └── components/
         └── *.js              # Pre-loaded ES module components
     ```
 
-    The output is fully static — no Node.js server is required to host it. Drop the `dist/` folder contents onto any static host (GitHub Pages, Netlify, Vercel, or an S3 bucket).
+    The output is fully static — no Node.js server is required to host it. Drop the build output onto any static host (GitHub Pages, Netlify, Vercel, or an S3 bucket).
   </Step>
 
   <Step title="Preview the Production Build">
@@ -104,7 +107,7 @@ Webmaster is a Vite-powered React SPA. Getting it running locally takes one `git
     npm run preview
     ```
 
-    The preview server starts at [http://localhost:4173](http://localhost:4173) and serves the files from `dist/` exactly as they will appear in production — including the client-side routing behaviour and all static asset paths.
+    The preview server starts at [http://localhost:4173](http://localhost:4173) and serves the built files exactly as they will appear in production — including the client-side routing behaviour and all static asset paths.
   </Step>
 
 </Steps>

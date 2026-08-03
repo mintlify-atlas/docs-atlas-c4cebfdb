@@ -1,7 +1,7 @@
 ---
-title: "RetroNav: Sticky Pixel-Font Navigation Component"
+title: "RetroNav: Sticky Pixel-Font Navigation Bar Component"
 sidebarTitle: "RetroNav"
-description: "RetroNav is a sticky navigation bar with nine routes, Windows 98 bevel styling, pixel-font labels, and marching-ants highlight on the active route."
+description: "RetroNav is a sticky nine-route navigation bar with Windows 98 bevel styling, pixel-font labels, and a marching-ants highlight on the active route."
 ---
 
 `RetroNav` is Webmaster's site-wide navigation bar. It renders nine hardcoded route links across a silver bevel-container panel that sticks to the top of the viewport while scrolling. The active route gets a sunken inset effect, a hot-pink text color, and an animated **marching-ants** dashed border. Inactive routes display as raised bevel buttons in the VT323 pixel font that turn hot-pink on hover.
@@ -42,14 +42,14 @@ Each nav item is rendered as a `<NavLink>`. React Router v6's `NavLink` passes a
 
 | State    | CSS Classes Applied |
 |----------|---------------------|
-| Active   | `bevel-container-inset bg-white text-hotpink marching-ants` |
-| Inactive | `bevel-button px-3 py-1 font-pixel text-lg text-black hover:text-hotpink` |
+| Active   | `bevel-button px-3 py-1 font-pixel text-lg sm:text-xl text-black no-underline hover:text-hotpink bevel-container-inset bg-white text-hotpink marching-ants` |
+| Inactive | `bevel-button px-3 py-1 font-pixel text-lg sm:text-xl text-black no-underline hover:text-hotpink` |
 
-The **active** state uses `.bevel-container-inset` for the sunken pressed-in look, white background, hot-pink text (`#FF69B4`), and the `.marching-ants` animated dashed border (a 1s linear infinite CSS keyframe animation). The **inactive** state uses `.bevel-button` for the raised raised look with black text and a hot-pink hover.
+Both states share the same base class string. The **active** state appends `.bevel-container-inset bg-white text-hotpink marching-ants` for the sunken pressed-in look, white background, hot-pink text (`#FF69B4`), and the `.marching-ants` animated dashed border. The **inactive** state uses `.bevel-button` alone for the raised look with black text and a hot-pink hover. Note the `sm:text-xl` responsive size step and `no-underline` are present on both states.
 
 ### Blinking ▶ / ◀ Indicators
 
-When a route is active, the component renders a blinking `▶` arrow before the label and a blinking `◀` arrow after it. Both use the `.animate-blink` class — a CSS keyframe animation that toggles opacity between 1 and 0 in a 1s step-start loop:
+When a route is active, the component renders a blinking `▶` arrow before the label and a blinking `◀` arrow after it, sandwiching the bracketed label text (e.g. `▶ [Home] ◀`). Both arrows use the `.animate-blink` class — a CSS keyframe animation that toggles opacity between 1 and 0 in a 1s step-start loop:
 
 ```css
 @keyframes blink {
@@ -146,17 +146,16 @@ export function RetroNav() {
           <NavLink
             key={path}
             to={path}
-            end={path === '/'}
             className={({ isActive }) =>
-              isActive
-                ? 'bevel-container-inset bg-white text-hotpink marching-ants'
-                : 'bevel-button px-3 py-1 font-pixel text-lg text-black hover:text-hotpink'
+              `bevel-button px-3 py-1 font-pixel text-lg sm:text-xl text-black no-underline hover:text-hotpink ${
+                isActive ? 'bevel-container-inset bg-white text-hotpink marching-ants' : ''
+              }`
             }
           >
             {({ isActive }) => (
               <>
                 {isActive && <span className="animate-blink mr-1">▶</span>}
-                {label}
+                [{label}]
                 {isActive && <span className="animate-blink ml-1">◀</span>}
               </>
             )}
